@@ -1,24 +1,6 @@
-# Virtual Environment
 venv/
-
-# Python
 __pycache__/
-*.py[cod]
-
-# Database
+*.pyc
 db.sqlite3
-
-# VS Code
-.vscode/
-
-# Environment Variables
 .env
-
-# Media uploads
-media/
-
-# macOS
-.DS_Store
-
-# Windows
-Thumbs.db
+*.sqlite3

@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Whisked POS
+{% endblock %}
+
+{% block content %}
+
+<div class="text-center">
+
+    <img
+        src="{% static 'images/logo-pink.png' %}"
+        class="logo-home mb-4">
+
+    <h1 class="display-4 fw-bold">
+
+        Welcome!
+
+    </h1>
+
+    <p class="lead">
+
+        Freshly whisked. Lovingly crafted.
+
+    </p>
+
+</div>
+
+<div class="row justify-content-center mt-5">
+
+    <div class="col-lg-4 mb-4">
+
+        <div class="home-card">
+
+            <div class="icon">
+
+                🛒
+
+            </div>
+
+            <h3>
+
+                POS Machine
+
+            </h3>
+
+            <p>
+
+                Start taking customer orders.
+
+            </p>
+
+            <a href="/pos/"
+               class="btn btn-whisked w-100">
+
+                Open POS
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="home-card">
+
+            <div class="icon">
+
+                📊
+
+            </div>
+
+            <h3>
+
+                Business Dashboard
+
+            </h3>
+
+            <p>
+
+                Reports, inventory, sales and finance.
+
+            </p>
+
+            <a href="/dashboard/"
+               class="btn btn-pink w-100">
+
+                Open Dashboard
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="text-center mt-5">
+
+    <small>
+
+        Version 1.0 • Whisked by Aly
+
+    </small>
+
+</div>
+
+{% endblock %}

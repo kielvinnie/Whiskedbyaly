@@ -1,0 +1,1689 @@
+{% extends "base.html" %}
+
+{% block title %}
+POS | Whisked by Aly
+{% endblock %}
+
+
+{% block content %}
+
+<div class="pos-page">
+
+    <!-- ==========================================
+         HEADER
+    =========================================== -->
+
+    <div class="pos-header">
+
+        <div>
+            <h1>🍵 Whisked by Aly</h1>
+            <p>Point of Sale</p>
+        </div>
+
+        <a href="/" class="btn btn-pink">
+            ← Home
+        </a>
+
+    </div>
+
+
+    <!-- ==========================================
+         POS CONTENT
+    =========================================== -->
+
+    <div class="row g-4">
+
+        <!-- ======================================
+             PRODUCTS
+        ======================================= -->
+
+        <div class="col-12 col-lg-7">
+
+            <div class="pos-section">
+
+                <h2>
+                    Choose a Matcha
+                </h2>
+
+                <p class="text-muted">
+                    Tap a product to add it to the order.
+                </p>
+
+
+                <div class="row g-3">
+
+                    {% for product in products %}
+
+                    <div class="col-6 col-md-4">
+
+                        <button
+                            type="button"
+                            class="product-button"
+                            onclick="addToCart(
+                                {{ product.id }},
+                                '{{ product.name|escapejs }}',
+                                {{ product.price }}
+                            )"
+                        >
+
+                            <span class="product-icon">
+                                🍵
+                            </span>
+
+                            <span class="product-name">
+                                {{ product.name }}
+                            </span>
+
+                            <span class="product-price">
+                                ₱{{ product.price }}
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                    {% empty %}
+
+                    <div class="col-12">
+
+                        <div class="alert alert-warning">
+
+                            No products have been added yet.
+
+                            Go to the Django Admin and add your
+                            five matcha flavors.
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================
+             CURRENT ORDER
+        ======================================= -->
+
+        <div class="col-12 col-lg-5">
+
+            <div class="order-card">
+
+                <div class="order-header">
+
+                    <div>
+
+                        <h2>
+                            🧾 Current Order
+                        </h2>
+
+                        <small>
+                            Your customer's order
+                        </small>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="clear-button"
+                        onclick="clearCart()"
+                    >
+                        Clear
+                    </button>
+
+                </div>
+
+
+                <!-- CART ITEMS -->
+
+                <div
+                    id="cart-items"
+                    class="cart-items"
+                >
+
+                    <div class="empty-cart">
+
+                        <div>
+                            🛒
+                        </div>
+
+                        <p>
+                            No items yet
+                        </p>
+
+                        <small>
+                            Tap a matcha to start an order.
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TOTAL -->
+
+                <div class="order-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong id="cart-total">
+                        ₱0.00
+                    </strong>
+
+                </div>
+
+
+                <!-- CHECKOUT BUTTON -->
+
+                <button
+                    type="button"
+                    class="btn btn-whisked checkout-button"
+                    onclick="startCheckout()"
+                >
+                    Continue to Payment →
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+                    JAVASCRIPT
+================================================== -->
+
+<script>
+
+/* ==========================================
+   CART
+========================================== */
+
+let cart = {};
+
+
+/* ==========================================
+   PAYMENT METHOD
+========================================== */
+
+let paymentMethod = "cash";
+
+
+/* ==========================================
+   SELECT PAYMENT METHOD
+========================================== */
+
+function selectPaymentMethod(method) {
+
+    paymentMethod = method;
+
+
+    const cashButton =
+        document.getElementById(
+            "cash-method-button"
+        );
+
+    const qrButton =
+        document.getElementById(
+            "qr-method-button"
+        );
+
+
+    const cashSection =
+        document.getElementById(
+            "cash-payment-section"
+        );
+
+    const qrSection =
+        document.getElementById(
+            "qr-payment-section"
+        );
+
+
+    if (method === "cash") {
+
+        cashButton.classList.add("active");
+
+        qrButton.classList.remove("active");
+
+        cashSection.style.display = "block";
+
+        qrSection.style.display = "none";
+
+    }
+
+    else {
+
+        qrButton.classList.add("active");
+
+        cashButton.classList.remove("active");
+
+        cashSection.style.display = "none";
+
+        qrSection.style.display = "block";
+
+    }
+
+
+    /* Clear payment error */
+
+    document.getElementById(
+        "payment-error"
+    ).textContent = "";
+
+}
+
+
+/* ==========================================
+   ADD PRODUCT
+========================================== */
+
+function addToCart(id, name, price) {
+
+    if (cart[id]) {
+
+        cart[id].quantity += 1;
+
+    }
+
+    else {
+
+        cart[id] = {
+
+            id: id,
+
+            name: name,
+
+            price: Number(price),
+
+            quantity: 1
+
+        };
+
+    }
+
+
+    renderCart();
+
+}
+
+
+/* ==========================================
+   CHANGE QUANTITY
+========================================== */
+
+function changeQuantity(id, amount) {
+
+    if (!cart[id]) {
+
+        return;
+
+    }
+
+
+    cart[id].quantity += amount;
+
+
+    if (cart[id].quantity <= 0) {
+
+        delete cart[id];
+
+    }
+
+
+    renderCart();
+
+}
+
+
+/* ==========================================
+   REMOVE ITEM
+========================================== */
+
+function removeItem(id) {
+
+    delete cart[id];
+
+    renderCart();
+
+}
+
+
+/* ==========================================
+   CLEAR CART
+========================================== */
+
+function clearCart() {
+
+    cart = {};
+
+    renderCart();
+
+}
+
+
+/* ==========================================
+   DISPLAY CART
+========================================== */
+
+function renderCart() {
+
+    const cartContainer =
+        document.getElementById(
+            "cart-items"
+        );
+
+
+    const totalElement =
+        document.getElementById(
+            "cart-total"
+        );
+
+
+    const items =
+        Object.values(cart);
+
+
+    /* EMPTY CART */
+
+    if (items.length === 0) {
+
+        cartContainer.innerHTML = `
+
+            <div class="empty-cart">
+
+                <div>
+                    🛒
+                </div>
+
+                <p>
+                    No items yet
+                </p>
+
+                <small>
+                    Tap a matcha to start an order.
+                </small>
+
+            </div>
+
+        `;
+
+
+        totalElement.textContent =
+            "₱0.00";
+
+
+        return;
+
+    }
+
+
+    let total = 0;
+
+
+    cartContainer.innerHTML = "";
+
+
+    /* DISPLAY ITEMS */
+
+    items.forEach(item => {
+
+        const subtotal =
+            item.price *
+            item.quantity;
+
+
+        total += subtotal;
+
+
+        cartContainer.innerHTML += `
+
+            <div class="cart-item">
+
+                <div class="cart-item-info">
+
+                    <strong>
+                        ${item.name}
+                    </strong>
+
+                    <small>
+                        ₱${item.price.toFixed(2)}
+                        each
+                    </small>
+
+                </div>
+
+
+                <div class="cart-item-right">
+
+                    <div class="quantity-controls">
+
+                        <button
+                            type="button"
+                            onclick="changeQuantity(
+                                ${item.id},
+                                -1
+                            )"
+                        >
+                            −
+                        </button>
+
+
+                        <span>
+                            ${item.quantity}
+                        </span>
+
+
+                        <button
+                            type="button"
+                            onclick="changeQuantity(
+                                ${item.id},
+                                1
+                            )"
+                        >
+                            +
+                        </button>
+
+                    </div>
+
+
+                    <strong>
+                        ₱${subtotal.toFixed(2)}
+                    </strong>
+
+
+                    <button
+                        type="button"
+                        class="remove-item"
+                        onclick="removeItem(
+                            ${item.id}
+                        )"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+            </div>
+
+        `;
+
+    });
+
+
+    totalElement.textContent =
+        `₱${total.toFixed(2)}`;
+
+}
+
+
+/* ==========================================
+   START CHECKOUT
+========================================== */
+
+function startCheckout() {
+
+    const items =
+        Object.values(cart);
+
+
+    /* Don't allow empty orders */
+
+    if (items.length === 0) {
+
+        alert(
+            "Please add at least one product."
+        );
+
+        return;
+
+    }
+
+
+    /* Reset payment method */
+
+    paymentMethod = "cash";
+
+
+    selectPaymentMethod(
+        "cash"
+    );
+
+
+    /* Clear previous reference */
+
+    document.getElementById(
+        "reference-number"
+    ).value = "";
+
+
+    /* Clear previous error */
+
+    document.getElementById(
+        "payment-error"
+    ).textContent = "";
+
+
+    /* Calculate total */
+
+    let total = 0;
+
+
+    items.forEach(item => {
+
+        total +=
+            item.price *
+            item.quantity;
+
+    });
+
+
+    /* Show total */
+
+    document.getElementById(
+        "checkout-total"
+    ).textContent =
+        `₱${total.toFixed(2)}`;
+
+
+    /* Reset cash */
+
+    document.getElementById(
+        "amount-paid"
+    ).value = "";
+
+
+    /* Reset change */
+
+    document.getElementById(
+        "change-amount"
+    ).textContent =
+        "₱0.00";
+
+
+    /* Open modal */
+
+    document.getElementById(
+        "checkout-modal"
+    ).classList.add("show");
+
+}
+
+
+/* ==========================================
+   CLOSE CHECKOUT
+========================================== */
+
+function closeCheckout() {
+
+    document
+        .getElementById(
+            "checkout-modal"
+        )
+        .classList.remove("show");
+
+}
+
+
+/* ==========================================
+   CALCULATE CHANGE
+========================================== */
+
+function calculateChange() {
+
+    const totalText =
+        document
+            .getElementById(
+                "checkout-total"
+            )
+            .textContent
+            .replace("₱", "")
+            .replace(",", "");
+
+
+    const total =
+        Number(totalText);
+
+
+    const amountPaid =
+        Number(
+            document.getElementById(
+                "amount-paid"
+            ).value
+        );
+
+
+    const change =
+        amountPaid - total;
+
+
+    const changeElement =
+        document.getElementById(
+            "change-amount"
+        );
+
+
+    if (amountPaid <= 0) {
+
+        changeElement.textContent =
+            "₱0.00";
+
+        return;
+
+    }
+
+
+    if (change < 0) {
+
+        changeElement.textContent =
+            `₱${Math.abs(change).toFixed(2)} short`;
+
+        return;
+
+    }
+
+
+    changeElement.textContent =
+        `₱${change.toFixed(2)}`;
+
+}
+
+
+/* ==========================================
+   QUICK CASH
+========================================== */
+
+function setCash(amount) {
+
+    document.getElementById(
+        "amount-paid"
+    ).value = amount;
+
+
+    calculateChange();
+
+}
+
+
+/* ==========================================
+   EXACT CASH
+========================================== */
+
+function setExactCash() {
+
+    const totalText =
+        document
+            .getElementById(
+                "checkout-total"
+            )
+            .textContent
+            .replace("₱", "")
+            .replace(",", "");
+
+
+    const total =
+        Number(totalText);
+
+
+    document.getElementById(
+        "amount-paid"
+    ).value = total;
+
+
+    calculateChange();
+
+}
+
+
+/* ==========================================
+   COMPLETE SALE
+========================================== */
+
+async function completeSale() {
+
+    const items =
+        Object.values(cart);
+
+
+    /* Check cart */
+
+    if (items.length === 0) {
+
+        alert(
+            "There are no items in the order."
+        );
+
+        return;
+
+    }
+
+
+    /* Calculate total */
+
+    const total =
+        items.reduce(
+            (sum, item) =>
+                sum +
+                item.price *
+                item.quantity,
+            0
+        );
+
+
+    let amountPaid = 0;
+
+    let referenceNumber = "";
+
+
+    /* ======================================
+       CASH
+    ====================================== */
+
+    if (paymentMethod === "cash") {
+
+        amountPaid =
+            Number(
+                document.getElementById(
+                    "amount-paid"
+                ).value
+            );
+
+
+        if (!amountPaid) {
+
+            document.getElementById(
+                "payment-error"
+            ).textContent =
+                "Please enter the cash received.";
+
+            return;
+
+        }
+
+
+        if (amountPaid < total) {
+
+            document.getElementById(
+                "payment-error"
+            ).textContent =
+                "The amount received is not enough.";
+
+            return;
+
+        }
+
+    }
+
+
+    /* ======================================
+       QR
+    ====================================== */
+
+    else {
+
+        referenceNumber =
+            document.getElementById(
+                "reference-number"
+            ).value.trim();
+
+
+        if (!referenceNumber) {
+
+            document.getElementById(
+                "payment-error"
+            ).textContent =
+                "Please enter the QR reference number.";
+
+            return;
+
+        }
+
+
+        /*
+            QR is considered fully paid.
+        */
+
+        amountPaid = total;
+
+    }
+
+
+    /* ======================================
+       CHANGE
+    ====================================== */
+
+    const change =
+        amountPaid - total;
+
+
+    /* ======================================
+       PREPARE ITEMS
+    ====================================== */
+
+    const transactionItems =
+        items.map(item => ({
+
+            id:
+                item.id,
+
+            quantity:
+                item.quantity,
+
+            price:
+                item.price,
+
+            subtotal:
+                item.price *
+                item.quantity
+
+        }));
+
+
+    /* ======================================
+       SEND TO DJANGO
+    ====================================== */
+
+    try {
+
+        const response =
+            await fetch(
+                "/pos/checkout/",
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "X-CSRFToken":
+                            getCookie(
+                                "csrftoken"
+                            )
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            items:
+                                transactionItems,
+
+                            total:
+                                total,
+
+                            amount_paid:
+                                amountPaid,
+
+                            change:
+                                change,
+
+                            payment_method:
+                                paymentMethod,
+
+                            reference_number:
+                                referenceNumber
+
+                        })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        /* ==================================
+           SUCCESS
+        ================================== */
+
+        if (result.success) {
+
+            showReceipt(
+
+                result.transaction_id,
+
+                items,
+
+                total,
+
+                amountPaid,
+
+                change,
+
+                paymentMethod,
+
+                referenceNumber
+
+            );
+
+
+            /* Clear cart */
+
+            cart = {};
+
+            renderCart();
+
+
+            /* Close checkout */
+
+            closeCheckout();
+
+        }
+
+
+        /* ==================================
+           ERROR FROM DJANGO
+        ================================== */
+
+        else {
+
+            document.getElementById(
+                "payment-error"
+            ).textContent =
+                result.error ||
+                "Something went wrong while saving the sale.";
+
+        }
+
+    }
+
+
+    /* ======================================
+       NETWORK ERROR
+    ====================================== */
+
+    catch (error) {
+
+        console.error(
+            "CHECKOUT ERROR:",
+            error
+        );
+
+
+        document.getElementById(
+            "payment-error"
+        ).textContent =
+            "Something went wrong while saving the sale.";
+
+    }
+
+}
+
+
+/* ==========================================
+   GET CSRF COOKIE
+========================================== */
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+
+    if (
+        document.cookie &&
+        document.cookie !== ""
+    ) {
+
+        const cookies =
+            document.cookie.split(";");
+
+
+        for (
+            let cookie of cookies
+        ) {
+
+            cookie =
+                cookie.trim();
+
+
+            if (
+                cookie.substring(
+                    0,
+                    name.length + 1
+                ) ===
+                (name + "=")
+            ) {
+
+                cookieValue =
+                    decodeURIComponent(
+                        cookie.substring(
+                            name.length + 1
+                        )
+                    );
+
+                break;
+
+            }
+
+        }
+
+    }
+
+
+    return cookieValue;
+
+}
+
+
+/* ==========================================
+   SHOW RECEIPT
+========================================== */
+
+function showReceipt(
+    transactionId,
+    items,
+    total,
+    amountPaid,
+    change,
+    paymentMethod,
+    referenceNumber
+) {
+
+
+    /* ======================================
+       RECEIPT ITEMS
+    ====================================== */
+
+    let receiptItems = "";
+
+
+    items.forEach(item => {
+
+        const subtotal =
+            item.price *
+            item.quantity;
+
+
+        receiptItems += `
+
+            <div class="receipt-item">
+
+                <div>
+
+                    <strong>
+                        ${item.name}
+                    </strong>
+
+                    <small>
+                        ${item.quantity}
+                        ×
+                        ₱${item.price.toFixed(2)}
+                    </small>
+
+                </div>
+
+
+                <strong>
+                    ₱${subtotal.toFixed(2)}
+                </strong>
+
+            </div>
+
+        `;
+
+    });
+
+
+    /* ======================================
+       DATE & TIME
+    ====================================== */
+
+    const now =
+        new Date();
+
+
+    const date =
+        now.toLocaleDateString(
+            "en-PH",
+            {
+
+                year:
+                    "numeric",
+
+                month:
+                    "short",
+
+                day:
+                    "numeric"
+
+            }
+        );
+
+
+    const time =
+        now.toLocaleTimeString(
+            "en-PH",
+            {
+
+                hour:
+                    "numeric",
+
+                minute:
+                    "2-digit"
+
+            }
+        );
+
+
+    /* ======================================
+       PAYMENT DETAILS
+    ====================================== */
+
+    let paymentDetails = "";
+
+
+    /* CASH RECEIPT */
+
+    if (paymentMethod === "cash") {
+
+        paymentDetails = `
+
+            <div>
+
+                <span>
+                    Payment
+                </span>
+
+                <span>
+                    Cash
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Cash Received
+                </span>
+
+                <span>
+                    ₱${amountPaid.toFixed(2)}
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Change
+                </span>
+
+                <span>
+                    ₱${change.toFixed(2)}
+                </span>
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* QR RECEIPT */
+
+    else {
+
+        paymentDetails = `
+
+            <div>
+
+                <span>
+                    Payment
+                </span>
+
+                <span>
+                    QR
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Reference No.
+                </span>
+
+                <span class="receipt-reference">
+                    ${referenceNumber}
+                </span>
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* ======================================
+       BUILD RECEIPT
+    ====================================== */
+
+    document.getElementById(
+        "receipt-content"
+    ).innerHTML = `
+
+        <div class="receipt-logo">
+            🍵
+        </div>
+
+
+        <h2>
+            WHISKED BY ALY
+        </h2>
+
+
+        <p class="receipt-subtitle">
+            MATCHA
+        </p>
+
+
+        <div class="receipt-info">
+
+            <span>
+                Transaction #${transactionId}
+            </span>
+
+
+            <span>
+                ${date} • ${time}
+            </span>
+
+        </div>
+
+
+        <div class="receipt-divider"></div>
+
+
+        <div class="receipt-items">
+
+            ${receiptItems}
+
+        </div>
+
+
+        <div class="receipt-divider"></div>
+
+
+        <div class="receipt-total">
+
+            <span>
+                TOTAL
+            </span>
+
+
+            <strong>
+                ₱${total.toFixed(2)}
+            </strong>
+
+        </div>
+
+
+        <div class="receipt-payment">
+
+            ${paymentDetails}
+
+        </div>
+
+
+        <div class="receipt-footer">
+
+            <strong>
+                Thank you! 💗
+            </strong>
+
+
+            <span>
+                See you again!
+            </span>
+
+        </div>
+
+    `;
+
+
+    /* ======================================
+       OPEN RECEIPT
+    ====================================== */
+
+    document
+        .getElementById(
+            "receipt-modal"
+        )
+        .classList.add("show");
+
+}
+
+
+/* ==========================================
+   CLOSE RECEIPT
+========================================== */
+
+function closeReceipt() {
+
+    document
+        .getElementById(
+            "receipt-modal"
+        )
+        .classList.remove("show");
+
+}
+
+</script>
+
+
+<!-- ==================================================
+                CHECKOUT MODAL
+================================================== -->
+
+<div
+    id="checkout-modal"
+    class="checkout-modal"
+>
+
+    <div class="checkout-box">
+
+
+        <!-- HEADER -->
+
+        <div class="checkout-header">
+
+            <div>
+
+                <h2>
+                    💰 Checkout
+                </h2>
+
+                <p>
+                    Complete this customer's order
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="checkout-close"
+                onclick="closeCheckout()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <!-- TOTAL -->
+
+        <div class="checkout-total-box">
+
+            <span>
+                Total Amount
+            </span>
+
+
+            <strong id="checkout-total">
+                ₱0.00
+            </strong>
+
+        </div>
+
+
+        <!-- ==========================================
+             PAYMENT METHOD
+        =========================================== -->
+
+        <div class="payment-method-container">
+
+            <label>
+                Payment Method
+            </label>
+
+
+            <div class="payment-method-buttons">
+
+                <button
+                    type="button"
+                    id="cash-method-button"
+                    class="payment-method-button active"
+                    onclick="selectPaymentMethod('cash')"
+                >
+                    💵 Cash
+                </button>
+
+
+                <button
+                    type="button"
+                    id="qr-method-button"
+                    class="payment-method-button"
+                    onclick="selectPaymentMethod('qr')"
+                >
+                    📱 QR
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             CASH PAYMENT
+        =========================================== -->
+
+        <div
+            id="cash-payment-section"
+            class="payment-section"
+        >
+
+            <div class="cash-input-container">
+
+                <label for="amount-paid">
+                    Cash Received
+                </label>
+
+
+                <div class="cash-input">
+
+                    <span>
+                        ₱
+                    </span>
+
+
+                    <input
+                        type="number"
+                        id="amount-paid"
+                        placeholder="0.00"
+                        min="0"
+                        step="0.01"
+                        oninput="calculateChange()"
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- QUICK CASH -->
+
+            <div class="quick-cash">
+
+                <button
+                    type="button"
+                    onclick="setCash(250)"
+                >
+                    ₱250
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="setCash(500)"
+                >
+                    ₱500
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="setCash(1000)"
+                >
+                    ₱1,000
+                </button>
+
+
+                <button
+                    type="button"
+                    onclick="setExactCash()"
+                >
+                    Exact
+                </button>
+
+            </div>
+
+
+            <!-- CHANGE -->
+
+            <div
+                id="change-box"
+                class="change-box"
+            >
+
+                <span>
+                    Change
+                </span>
+
+
+                <strong id="change-amount">
+                    ₱0.00
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             QR PAYMENT
+        =========================================== -->
+
+        <div
+            id="qr-payment-section"
+            class="payment-section"
+            style="display:none;"
+        >
+
+            <label for="reference-number">
+                QR Reference Number
+            </label>
+
+
+            <input
+                type="text"
+                id="reference-number"
+                class="reference-input"
+                placeholder="Enter payment reference number"
+            >
+
+
+            <small class="reference-help">
+                Enter the reference number shown after the QR payment.
+            </small>
+
+        </div>
+
+
+        <!-- ERROR -->
+
+        <div
+            id="payment-error"
+            class="payment-error"
+        ></div>
+
+
+        <!-- COMPLETE SALE -->
+
+        <button
+            type="button"
+            class="complete-sale-button"
+            onclick="completeSale()"
+        >
+            ✓ Complete Sale
+        </button>
+
+
+        <!-- CANCEL -->
+
+        <button
+            type="button"
+            class="cancel-sale-button"
+            onclick="closeCheckout()"
+        >
+            Cancel
+        </button>
+
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+                    RECEIPT MODAL
+================================================== -->
+
+<div
+    id="receipt-modal"
+    class="receipt-modal"
+>
+
+    <div class="receipt-box">
+
+        <div
+            id="receipt-content"
+            class="receipt-content"
+        >
+        </div>
+
+
+        <div class="receipt-actions">
+
+            <button
+                type="button"
+                class="btn btn-whisked"
+                onclick="window.print()"
+            >
+                🖨 Print Receipt
+            </button>
+
+
+            <button
+                type="button"
+                class="btn btn-pink"
+                onclick="closeReceipt()"
+            >
+                + New Sale
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock %}

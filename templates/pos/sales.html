@@ -1,0 +1,371 @@
+{% extends "base.html" %}
+
+{% block title %}
+Sales | Whisked by Aly
+{% endblock %}
+
+{% block content %}
+
+<div class="sales-page">
+
+    <!-- HEADER -->
+
+    <div class="sales-header">
+
+        <div>
+            <h1>📊 Sales</h1>
+
+            <p>
+                Whisked by Aly • Sales Overview
+            </p>
+        </div>
+
+        <div class="sales-header-buttons">
+
+            <a
+                href="/pos/"
+                class="btn btn-whisked"
+            >
+                🍵 POS
+            </a>
+
+            <a
+                href="/"
+                class="btn btn-pink"
+            >
+                ← Home
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- TODAY -->
+
+    <div class="sales-date">
+
+        <span>
+            Today's Sales
+        </span>
+
+        <strong>
+            {{ today|date:"F d, Y" }}
+        </strong>
+
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-12 col-md-6 col-xl-3">
+
+            <div class="sales-summary-card">
+
+                <span class="summary-icon">
+                    💰
+                </span>
+
+                <div>
+
+                    <small>
+                        Today's Sales
+                    </small>
+
+                    <h2>
+                        ₱{{ today_total|floatformat:2 }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-12 col-md-6 col-xl-3">
+
+            <div class="sales-summary-card">
+
+                <span class="summary-icon">
+                    🧾
+                </span>
+
+                <div>
+
+                    <small>
+                        Transactions
+                    </small>
+
+                    <h2>
+                        {{ today_transactions_count }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-12 col-md-6 col-xl-3">
+
+            <div class="sales-summary-card">
+
+                <span class="summary-icon">
+                    💵
+                </span>
+
+                <div>
+
+                    <small>
+                        Cash Sales
+                    </small>
+
+                    <h2>
+                        ₱{{ cash_total|floatformat:2 }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-12 col-md-6 col-xl-3">
+
+            <div class="sales-summary-card">
+
+                <span class="summary-icon">
+                    📱
+                </span>
+
+                <div>
+
+                    <small>
+                        QR Sales
+                    </small>
+
+                    <h2>
+                        ₱{{ qr_total|floatformat:2 }}
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- TRANSACTION HISTORY -->
+
+    <div class="sales-card">
+
+        <div class="sales-card-header">
+
+            <div>
+
+                <h2>
+                    Transaction History
+                </h2>
+
+                <p>
+                    All recorded sales
+                </p>
+
+            </div>
+
+        </div>
+
+
+        {% if transactions %}
+
+        <div class="table-responsive">
+
+            <table class="sales-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Transaction
+                        </th>
+
+                        <th>
+                            Date & Time
+                        </th>
+
+                        <th>
+                            Items
+                        </th>
+
+                        <th>
+                            Payment
+                        </th>
+
+                        <th>
+                            Reference
+                        </th>
+
+                        <th>
+                            Total
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for transaction in transactions %}
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                #{{ transaction.id }}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="transaction-date">
+
+                                {{ transaction.transaction_date|date:"M d, Y" }}
+
+                                <br>
+
+                                <small>
+                                    {{ transaction.transaction_date|date:"g:i A" }}
+                                </small>
+
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="sales-items">
+
+                                {% for item in transaction.items.all %}
+
+                                <div>
+
+                                    {{ item.product.name }}
+
+                                    <span>
+                                        ×{{ item.quantity }}
+                                    </span>
+
+                                </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            {% if transaction.payment_method == "cash" %}
+
+                            <span class="payment-badge cash">
+                                💵 Cash
+                            </span>
+
+                            {% else %}
+
+                            <span class="payment-badge qr">
+                                📱 QR
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            {% if transaction.reference_number %}
+
+                            <span class="reference-number">
+
+                                {{ transaction.reference_number }}
+
+                            </span>
+
+                            {% else %}
+
+                            <span class="no-reference">
+                                —
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <strong class="transaction-total">
+
+                                ₱{{ transaction.total|floatformat:2 }}
+
+                            </strong>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="no-sales">
+
+            <div>
+                🧾
+            </div>
+
+            <h3>
+                No sales yet
+            </h3>
+
+            <p>
+                Completed transactions will appear here.
+            </p>
+
+            <a
+                href="/pos/"
+                class="btn btn-whisked"
+            >
+                Start a Sale
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}
