@@ -3,17 +3,29 @@ from django.db import models
 
 class Product(models.Model):
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(
+        max_length=100
+    )
 
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2
     )
 
-    is_active = models.BooleanField(default=True)
+    cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    is_active = models.BooleanField(
+        default=True
+    )
 
     def __str__(self):
         return self.name
+
+
 class Transaction(models.Model):
 
     PAYMENT_METHODS = [
@@ -55,6 +67,7 @@ class Transaction(models.Model):
     def __str__(self):
         return f"Transaction #{self.id}"
 
+
 class OrderItem(models.Model):
 
     transaction = models.ForeignKey(
@@ -75,9 +88,21 @@ class OrderItem(models.Model):
         decimal_places=2
     )
 
+    cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
     subtotal = models.DecimalField(
         max_digits=10,
         decimal_places=2
+    )
+
+    cost_subtotal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
     )
 
     def __str__(self):

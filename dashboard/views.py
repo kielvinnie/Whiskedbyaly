@@ -19,6 +19,18 @@ def home(request):
         or Decimal("0.00")
     )
 
+    overall_total_cost = (
+        OrderItem.objects.aggregate(
+            total=Sum("cost_subtotal")
+        )["total"]
+        or Decimal("0.00")
+    )
+
+    overall_net_profit = (
+        overall_total_sales
+        - overall_total_cost
+    )
+
     overall_transactions_count = (
         Transaction.objects.count()
     )
@@ -142,6 +154,34 @@ def home(request):
         or Decimal("0.00")
     )
 
+    # ==========================================
+    # FILTERED COST
+    # ==========================================
+
+    filtered_items = OrderItem.objects.filter(
+        transaction__in=filtered_transactions
+    )
+
+    filtered_total_cost = (
+        filtered_items.aggregate(
+            total=Sum("cost_subtotal")
+        )["total"]
+        or Decimal("0.00")
+    )
+
+    # ==========================================
+    # FILTERED NET PROFIT
+    # ==========================================
+
+    filtered_net_profit = (
+        filtered_total_sales
+        - filtered_total_cost
+    )
+
+    # ==========================================
+    # FILTERED TRANSACTION COUNT
+    # ==========================================
+
     filtered_transactions_count = (
         filtered_transactions.count()
     )
@@ -149,10 +189,6 @@ def home(request):
     # ==========================================
     # FILTERED BEST SELLER
     # ==========================================
-
-    filtered_items = OrderItem.objects.filter(
-        transaction__in=filtered_transactions
-    )
 
     filtered_best_seller = (
         filtered_items
@@ -170,9 +206,18 @@ def home(request):
 
     context = {
 
+        # --------------------------------------
         # Overall
+        # --------------------------------------
+
         "overall_total_sales":
             overall_total_sales,
+
+        "overall_total_cost":
+            overall_total_cost,
+
+        "overall_net_profit":
+            overall_net_profit,
 
         "overall_transactions_count":
             overall_transactions_count,
@@ -186,9 +231,19 @@ def home(request):
         "overall_best_seller":
             overall_best_seller,
 
-        # Selected period
+
+        # --------------------------------------
+        # Selected Period
+        # --------------------------------------
+
         "filtered_total_sales":
             filtered_total_sales,
+
+        "filtered_total_cost":
+            filtered_total_cost,
+
+        "filtered_net_profit":
+            filtered_net_profit,
 
         "filtered_transactions_count":
             filtered_transactions_count,
@@ -199,7 +254,11 @@ def home(request):
         "filtered_transactions":
             filtered_transactions,
 
+
+        # --------------------------------------
         # Filters
+        # --------------------------------------
+
         "period":
             period,
 

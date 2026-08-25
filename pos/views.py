@@ -209,6 +209,14 @@ def checkout(request):
                 quantity
             )
 
+            # Calculate the total cost
+            # for this product in this order
+
+            cost_subtotal = (
+                product.cost *
+                quantity
+            )
+
 
             OrderItem.objects.create(
 
@@ -220,7 +228,11 @@ def checkout(request):
 
                 price=product.price,
 
-                subtotal=subtotal
+                cost=product.cost,
+
+                subtotal=subtotal,
+
+                cost_subtotal=cost_subtotal
 
             )
 
@@ -265,6 +277,7 @@ def checkout(request):
             status=500
         )
 
+
 def sales(request):
 
     today = timezone.localdate()
@@ -289,24 +302,41 @@ def sales(request):
     cash_total = (
         today_transactions
         .filter(payment_method="cash")
-        .aggregate(total=Sum("total"))["total"]
+        .aggregate(
+            total=Sum("total")
+        )["total"]
         or Decimal("0.00")
     )
 
     qr_total = (
         today_transactions
         .filter(payment_method="qr")
-        .aggregate(total=Sum("total"))["total"]
+        .aggregate(
+            total=Sum("total")
+        )["total"]
         or Decimal("0.00")
     )
 
     context = {
-        "transactions": transactions,
-        "today_total": today_total,
-        "today_transactions_count": today_transactions.count(),
-        "cash_total": cash_total,
-        "qr_total": qr_total,
-        "today": today,
+
+        "transactions":
+            transactions,
+
+        "today_total":
+            today_total,
+
+        "today_transactions_count":
+            today_transactions.count(),
+
+        "cash_total":
+            cash_total,
+
+        "qr_total":
+            qr_total,
+
+        "today":
+            today,
+
     }
 
     return render(
@@ -314,6 +344,7 @@ def sales(request):
         "pos/sales.html",
         context
     )
+
 
 def dashboard(request):
 
@@ -328,7 +359,21 @@ def dashboard(request):
         or Decimal("0.00")
     )
 
-    overall_transactions_count = Transaction.objects.count()
+    overall_total_cost = (
+        OrderItem.objects.aggregate(
+            total=Sum("cost_subtotal")
+        )["total"]
+        or Decimal("0.00")
+    )
+
+    overall_net_profit = (
+        overall_total_sales
+        - overall_total_cost
+    )
+
+    overall_transactions_count = (
+        Transaction.objects.count()
+    )
 
     overall_products_sold = (
         OrderItem.objects.aggregate(
@@ -337,9 +382,11 @@ def dashboard(request):
         or 0
     )
 
-    total_products = Product.objects.filter(
-        is_active=True
-    ).count()
+    total_products = (
+        Product.objects.filter(
+            is_active=True
+        ).count()
+    )
 
 
     # ==========================================
@@ -383,7 +430,9 @@ def dashboard(request):
     )
 
 
-    # Start with all transactions
+    # ==========================================
+    # START WITH ALL TRANSACTIONS
+    # ==========================================
 
     filtered_transactions = (
         Transaction.objects
@@ -449,7 +498,7 @@ def dashboard(request):
 
 
     # ==========================================
-    # SELECTED PERIOD TOTAL
+    # SELECTED PERIOD TOTAL SALES
     # ==========================================
 
     filtered_total_sales = (
@@ -460,6 +509,41 @@ def dashboard(request):
     )
 
 
+    # ==========================================
+    # SELECTED PERIOD ITEMS
+    # ==========================================
+
+    filtered_items = OrderItem.objects.filter(
+        transaction__in=filtered_transactions
+    )
+
+
+    # ==========================================
+    # SELECTED PERIOD TOTAL COST
+    # ==========================================
+
+    filtered_total_cost = (
+        filtered_items.aggregate(
+            total=Sum("cost_subtotal")
+        )["total"]
+        or Decimal("0.00")
+    )
+
+
+    # ==========================================
+    # SELECTED PERIOD NET PROFIT
+    # ==========================================
+
+    filtered_net_profit = (
+        filtered_total_sales
+        - filtered_total_cost
+    )
+
+
+    # ==========================================
+    # SELECTED PERIOD TRANSACTION COUNT
+    # ==========================================
+
     filtered_transactions_count = (
         filtered_transactions.count()
     )
@@ -468,10 +552,6 @@ def dashboard(request):
     # ==========================================
     # SELECTED PERIOD BEST SELLER
     # ==========================================
-
-    filtered_items = OrderItem.objects.filter(
-        transaction__in=filtered_transactions
-    )
 
     filtered_best_seller = (
         filtered_items
@@ -494,9 +574,18 @@ def dashboard(request):
 
     context = {
 
+        # --------------------------------------
         # Overall
+        # --------------------------------------
+
         "overall_total_sales":
             overall_total_sales,
+
+        "overall_total_cost":
+            overall_total_cost,
+
+        "overall_net_profit":
+            overall_net_profit,
 
         "overall_transactions_count":
             overall_transactions_count,
@@ -511,9 +600,18 @@ def dashboard(request):
             overall_best_seller,
 
 
+        # --------------------------------------
         # Filtered
+        # --------------------------------------
+
         "filtered_total_sales":
             filtered_total_sales,
+
+        "filtered_total_cost":
+            filtered_total_cost,
+
+        "filtered_net_profit":
+            filtered_net_profit,
 
         "filtered_transactions_count":
             filtered_transactions_count,
@@ -525,7 +623,10 @@ def dashboard(request):
             filtered_transactions,
 
 
+        # --------------------------------------
         # Filter values
+        # --------------------------------------
+
         "period":
             period,
 
@@ -537,6 +638,7 @@ def dashboard(request):
 
         "selected_year":
             selected_year,
+
     }
 
 

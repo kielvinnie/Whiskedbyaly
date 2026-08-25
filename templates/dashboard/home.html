@@ -94,7 +94,7 @@ Business Dashboard | Whisked by Aly
             </div>
 
 
-            <!-- TRANSACTIONS -->
+            <!-- TOTAL COST -->
 
             <div class="col-lg-3 col-md-6">
 
@@ -102,6 +102,60 @@ Business Dashboard | Whisked by Aly
 
                     <div class="summary-icon">
                         🧾
+                    </div>
+
+                    <small>
+                        Total Cost
+                    </small>
+
+                    <h2>
+                        ₱{{ overall_total_cost|floatformat:2 }}
+                    </h2>
+
+                    <small>
+                        Cost of goods sold
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- NET PROFIT -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="stat-card h-100">
+
+                    <div class="summary-icon">
+                        📈
+                    </div>
+
+                    <small>
+                        Net Profit
+                    </small>
+
+                    <h2>
+                        ₱{{ overall_net_profit|floatformat:2 }}
+                    </h2>
+
+                    <small>
+                        Sales minus cost
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- TRANSACTIONS -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="stat-card h-100">
+
+                    <div class="summary-icon">
+                        🛍️
                     </div>
 
                     <small>
@@ -121,27 +175,39 @@ Business Dashboard | Whisked by Aly
             </div>
 
 
+        </div>
+
+
+        <!-- SECONDARY OVERALL INFORMATION -->
+
+        <div class="row g-4 mt-1">
+
+
             <!-- PRODUCTS SOLD -->
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-6">
 
-                <div class="stat-card h-100">
+                <div class="sales-summary-card h-100">
 
                     <div class="summary-icon">
-                        🛍️
+                        📦
                     </div>
 
-                    <small>
-                        Products Sold
-                    </small>
+                    <div>
 
-                    <h2>
-                        {{ overall_products_sold }}
-                    </h2>
+                        <small>
+                            Products Sold
+                        </small>
 
-                    <small>
-                        Total units
-                    </small>
+                        <h2>
+                            {{ overall_products_sold }}
+                        </h2>
+
+                        <small>
+                            Total units sold
+                        </small>
+
+                    </div>
 
                 </div>
 
@@ -150,25 +216,29 @@ Business Dashboard | Whisked by Aly
 
             <!-- ACTIVE PRODUCTS -->
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-lg-6">
 
-                <div class="stat-card h-100">
+                <div class="sales-summary-card h-100">
 
                     <div class="summary-icon">
-                        📦
+                        🧋
                     </div>
 
-                    <small>
-                        Active Products
-                    </small>
+                    <div>
 
-                    <h2>
-                        {{ total_products }}
-                    </h2>
+                        <small>
+                            Active Products
+                        </small>
 
-                    <small>
-                        Currently active
-                    </small>
+                        <h2>
+                            {{ total_products }}
+                        </h2>
+
+                        <small>
+                            Currently active
+                        </small>
+
+                    </div>
 
                 </div>
 
@@ -240,7 +310,7 @@ Business Dashboard | Whisked by Aly
             </h2>
 
             <p>
-                View sales based on a selected date, month, or year.
+                View sales, costs, and profit based on a selected date, month, or year.
             </p>
 
         </div>
@@ -412,7 +482,7 @@ Business Dashboard | Whisked by Aly
 
             <!-- PERIOD SALES -->
 
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-3 col-md-6">
 
                 <div class="sales-summary-card h-100">
 
@@ -423,12 +493,78 @@ Business Dashboard | Whisked by Aly
                     <div>
 
                         <small>
-                            Sales for Selected Period
+                            Sales
                         </small>
 
                         <h2>
                             ₱{{ filtered_total_sales|floatformat:2 }}
                         </h2>
+
+                        <small>
+                            Selected period
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PERIOD COST -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="sales-summary-card h-100">
+
+                    <div class="summary-icon">
+                        🧾
+                    </div>
+
+                    <div>
+
+                        <small>
+                            Total Cost
+                        </small>
+
+                        <h2>
+                            ₱{{ filtered_total_cost|floatformat:2 }}
+                        </h2>
+
+                        <small>
+                            Cost of goods sold
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PERIOD PROFIT -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="sales-summary-card h-100">
+
+                    <div class="summary-icon">
+                        📈
+                    </div>
+
+                    <div>
+
+                        <small>
+                            Net Profit
+                        </small>
+
+                        <h2>
+                            ₱{{ filtered_net_profit|floatformat:2 }}
+                        </h2>
+
+                        <small>
+                            Sales minus cost
+                        </small>
 
                     </div>
 
@@ -439,7 +575,7 @@ Business Dashboard | Whisked by Aly
 
             <!-- TRANSACTIONS -->
 
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-3 col-md-6">
 
                 <div class="sales-summary-card h-100">
 
@@ -457,6 +593,10 @@ Business Dashboard | Whisked by Aly
                             {{ filtered_transactions_count }}
                         </h2>
 
+                        <small>
+                            Selected period
+                        </small>
+
                     </div>
 
                 </div>
@@ -464,46 +604,47 @@ Business Dashboard | Whisked by Aly
             </div>
 
 
-            <!-- BEST SELLER -->
+        </div>
 
-            <div class="col-lg-4 col-md-12">
 
-                <div class="sales-summary-card h-100">
+        <!-- BEST SELLER -->
 
-                    <div class="summary-icon">
-                        🏆
-                    </div>
+        <div class="mt-4">
 
-                    <div>
+            <div class="sales-summary-card">
 
-                        <small>
-                            Best Seller
-                        </small>
+                <div class="summary-icon">
+                    🏆
+                </div>
 
-                        <h2>
+                <div>
 
-                            {% if filtered_best_seller %}
+                    <small>
+                        Best Seller
+                    </small>
 
-                                {{ filtered_best_seller.product__name }}
-
-                            {% else %}
-
-                                No sales
-
-                            {% endif %}
-
-                        </h2>
+                    <h2>
 
                         {% if filtered_best_seller %}
 
-                            <small>
-                                {{ filtered_best_seller.total_quantity }}
-                                units sold
-                            </small>
+                            {{ filtered_best_seller.product__name }}
+
+                        {% else %}
+
+                            No sales
 
                         {% endif %}
 
-                    </div>
+                    </h2>
+
+                    {% if filtered_best_seller %}
+
+                        <small>
+                            {{ filtered_best_seller.total_quantity }}
+                            units sold
+                        </small>
+
+                    {% endif %}
 
                 </div>
 
