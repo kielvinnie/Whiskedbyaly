@@ -14,7 +14,6 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
 class Transaction(models.Model):
 
     PAYMENT_METHODS = [

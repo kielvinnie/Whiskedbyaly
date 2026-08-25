@@ -34,6 +34,8 @@ DEBUG = os.environ.get(
 
 ALLOWED_HOSTS = [
     "whiskedbyaly.onrender.com",
+    "127.0.0.1",
+    "localhost",
 ]
 
 if os.environ.get("RENDER_EXTERNAL_HOSTNAME"):

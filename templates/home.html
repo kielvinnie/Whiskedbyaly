@@ -1,0 +1,1549 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Whisked by Aly
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   WHISKED BY ALY — HOMEPAGE
+   ========================================================= */
+
+.whisked-home {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5px 15px 50px;
+}
+
+
+/* =========================================================
+   SCATTERED BACKGROUND DOODLES
+   ========================================================= */
+
+.background-doodles {
+    position: absolute;
+    top: 0;
+    left: -100px;
+    width: calc(100% + 200px);
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: visible;
+}
+
+.whisked-home > *:not(.background-doodles) {
+    position: relative;
+    z-index: 2;
+}
+
+.bg-doodle {
+    position: absolute;
+    object-fit: contain;
+    opacity: 0.92;
+
+    filter:
+        drop-shadow(
+            0 4px 5px
+            rgba(45, 60, 20, 0.06)
+        );
+}
+
+
+/* =========================================================
+   BACKGROUND DOODLES
+   ========================================================= */
+
+.bg-whisk {
+    width: 105px;
+    top: 55px;
+    left: 5px;
+    transform: rotate(-18deg);
+}
+
+.bg-oatside {
+    width: 105px;
+    top: 70px;
+    right: 0;
+    transform: rotate(12deg);
+}
+
+.bg-whisk-three {
+    width: 70px;
+    top: 315px;
+    left: 25px;
+    transform: rotate(25deg);
+}
+
+.bg-bowl-three {
+    width: 80px;
+    top: 350px;
+    right: 20px;
+    transform: rotate(-12deg);
+}
+
+.bg-bowl {
+    width: 130px;
+    top: 560px;
+    left: -5px;
+    transform: rotate(-9deg);
+}
+
+.bg-whisk-two {
+    width: 105px;
+    top: 610px;
+    right: -5px;
+    transform: rotate(18deg);
+}
+
+.bg-oatside-three {
+    width: 75px;
+    top: 720px;
+    left: 70px;
+    transform: rotate(8deg);
+}
+
+.bg-whisk-four {
+    width: 80px;
+    top: 760px;
+    right: 70px;
+    transform: rotate(-23deg);
+}
+
+.bg-oatside-two {
+    width: 95px;
+    top: 900px;
+    left: 5px;
+    transform: rotate(-12deg);
+}
+
+.bg-bowl-two {
+    width: 115px;
+    top: 930px;
+    right: 0;
+    transform: rotate(9deg);
+}
+
+.bg-bowl-four {
+    width: 75px;
+    top: 1090px;
+    left: 120px;
+    transform: rotate(12deg);
+}
+
+.bg-oatside-four {
+    width: 70px;
+    top: 1120px;
+    right: 110px;
+    transform: rotate(-8deg);
+}
+
+
+/* =========================================================
+   BACKGROUND SPARKLES
+   ========================================================= */
+
+.bg-sparkle {
+    position: absolute;
+    color: #A9B86A;
+    font-size: 21px;
+    opacity: 0.75;
+}
+
+.sparkle-one {
+    top: 235px;
+    left: 90px;
+}
+
+.sparkle-two {
+    top: 300px;
+    right: 90px;
+}
+
+.sparkle-three {
+    top: 610px;
+    left: 155px;
+}
+
+.sparkle-four {
+    top: 690px;
+    right: 145px;
+}
+
+.sparkle-five {
+    top: 865px;
+    left: 80px;
+}
+
+.sparkle-six {
+    top: 885px;
+    right: 70px;
+}
+
+.sparkle-seven {
+    top: 1030px;
+    left: 45px;
+}
+
+.sparkle-eight {
+    top: 1050px;
+    right: 45px;
+}
+
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.whisked-hero {
+    position: relative;
+
+    background: #FFFDF7;
+
+    border:
+        3px solid #EFA3B9;
+
+    border-radius: 34px;
+
+    padding:
+        28px 30px 15px;
+
+    text-align: center;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   HERO SHAPES
+   ========================================================= */
+
+.hero-shape {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.hero-shape-pink {
+    width: 110px;
+    height: 110px;
+
+    background: #F8D9E2;
+
+    top: -55px;
+    left: -35px;
+}
+
+.hero-shape-green {
+    width: 95px;
+    height: 95px;
+
+    background: #E5EACF;
+
+    bottom: -50px;
+    right: -25px;
+}
+
+
+/* =========================================================
+   HERO DECORATIONS
+   ========================================================= */
+
+.hero-flower-left {
+    position: absolute;
+
+    top: 28px;
+    left: 45px;
+
+    font-size: 27px;
+
+    transform:
+        rotate(-10deg);
+}
+
+.hero-matcha-right {
+    position: absolute;
+
+    top: 28px;
+    right: 45px;
+
+    font-size: 25px;
+
+    transform:
+        rotate(8deg);
+}
+
+.hero-star-left {
+    position: absolute;
+
+    bottom: 25px;
+    left: 90px;
+
+    color: #A9B86A;
+
+    font-size: 24px;
+}
+
+.hero-flower-right {
+    position: absolute;
+
+    bottom: 25px;
+    right: 90px;
+
+    color: #D85D7E;
+
+    font-size: 23px;
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.whisked-logo {
+    position: relative;
+    z-index: 2;
+
+    width: 180px;
+    max-width: 60%;
+
+    margin-bottom: 13px;
+
+    filter:
+        drop-shadow(
+            0 4px 5px
+            rgba(50, 65, 20, 0.07)
+        );
+}
+
+
+/* =========================================================
+   WELCOME
+   ========================================================= */
+
+.whisked-welcome {
+    position: relative;
+    z-index: 2;
+
+    margin: 0;
+
+    font-family:
+        "Baloo 2",
+        sans-serif;
+
+    font-size:
+        clamp(3.2rem, 7vw, 4.8rem);
+
+    line-height: 0.9;
+
+    font-weight: 800;
+
+    color: #29420F;
+
+    letter-spacing: -1px;
+}
+
+
+/* =========================================================
+   TAGLINE
+   ========================================================= */
+
+.whisked-tagline {
+    position: relative;
+    z-index: 2;
+
+    margin:
+        8px 0 0;
+
+    font-family:
+        "Caveat",
+        cursive;
+
+    font-size: 1.8rem;
+
+    font-weight: 600;
+
+    color: #29420F;
+}
+
+.whisked-tagline::before {
+    content: "✦";
+
+    color: #A9B86A;
+
+    margin-right: 9px;
+
+    font-family:
+        "Quicksand",
+        sans-serif;
+}
+
+.whisked-tagline::after {
+    content: "✦";
+
+    color: #A9B86A;
+
+    margin-left: 9px;
+
+    font-family:
+        "Quicksand",
+        sans-serif;
+}
+
+
+/* =========================================================
+   DRINK AREA
+   ========================================================= */
+
+.product-strip {
+    position: relative;
+
+    height: 235px;
+
+    margin-top: 0;
+
+    display: block;
+}
+
+
+/* =========================================================
+   ALL DRINKS
+   ========================================================= */
+
+.product-doodle {
+    position: absolute;
+
+    width: 105px;
+    height: 125px;
+
+    object-fit: contain;
+
+    cursor: pointer;
+
+    filter:
+        drop-shadow(
+            0 3px 3px
+            rgba(45, 60, 20, 0.04)
+        );
+
+    transition:
+        transform 0.22s ease,
+        filter 0.22s ease;
+}
+
+
+/* =========================================================
+   LEFT BOOKEND
+   CHOCNUT HOJICHA
+   ========================================================= */
+
+.product-doodle:nth-child(1) {
+
+    left: 1%;
+
+    top: -120px;
+
+    width: 150px;
+
+    transform:
+        rotate(-10deg);
+}
+
+
+/* =========================================================
+   SECOND — PASTILLAS MATCHA
+   ========================================================= */
+
+.product-doodle:nth-child(2) {
+
+    left: 20%;
+
+    top: 35px;
+
+    width: 98px;
+
+    transform:
+        rotate(10deg);
+}
+
+
+/* =========================================================
+   THIRD — CHOCNUT MATCHA
+   ========================================================= */
+
+.product-doodle:nth-child(3) {
+
+    left: 39%;
+
+    top: 85px;
+
+    width: 105px;
+
+    transform:
+        rotate(-6deg);
+}
+
+
+/* =========================================================
+   FOURTH — MAIS CON YELO
+   ========================================================= */
+
+.product-doodle:nth-child(4) {
+
+    left: 56%;
+
+    top: 25px;
+
+    width: 112px;
+
+    transform:
+        rotate(6deg);
+}
+
+
+/* =========================================================
+   FIFTH — YEMA MATCHA
+   ========================================================= */
+
+.product-doodle:nth-child(5) {
+
+    left: 72%;
+
+    top: 92px;
+
+    width: 102px;
+
+    transform:
+        rotate(-7deg);
+}
+
+
+/* =========================================================
+   RIGHT BOOKEND
+   MATCHA OAT LATTE
+   ========================================================= */
+
+.product-doodle:nth-child(6) {
+
+    left: 88%;
+
+    /*
+       Pull it upward to sit beside
+       the Welcome section.
+    */
+
+    top: -115px;
+
+    width: 112px;
+
+    transform:
+        rotate(8deg);
+}
+
+
+/* =========================================================
+   DRINK HOVER
+   ========================================================= */
+
+.product-doodle:hover {
+
+    transform:
+        translateY(-14px)
+        rotate(0deg)
+        scale(1.09);
+
+    filter:
+        drop-shadow(
+            0 10px 7px
+            rgba(45, 60, 20, 0.12)
+        );
+}
+
+
+/* =========================================================
+   POS + DASHBOARD
+   ========================================================= */
+
+.whisked-options {
+
+    margin-top: 72px;
+}
+
+
+/* =========================================================
+   OPTION CARDS
+   ========================================================= */
+
+.whisked-option {
+
+    position: relative;
+
+    height: 100%;
+
+    background: #FFFDF7;
+
+    border:
+        3px solid #EFA3B9;
+
+    border-radius: 28px;
+
+    padding:
+        30px 30px 28px;
+
+    text-align: center;
+
+    overflow: hidden;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* Scalloped top */
+
+.whisked-option::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: -7px;
+
+    left: 15px;
+
+    right: 15px;
+
+    height: 13px;
+
+    background:
+        radial-gradient(
+            circle at 8px 8px,
+            #EFA3B9 8px,
+            transparent 9px
+        );
+
+    background-size:
+        22px 14px;
+
+    opacity: 0.45;
+}
+
+
+/* Card hover */
+
+.whisked-option:hover {
+
+    transform:
+        translateY(-5px)
+        rotate(-0.3deg);
+
+    box-shadow:
+        0 10px 25px
+        rgba(45, 60, 20, 0.06);
+}
+
+
+/* Dashboard */
+
+.whisked-option.dashboard-card-home {
+
+    border-color:
+        #A9B86A;
+}
+
+
+/* =========================================================
+   CARD CARTOONS
+   ========================================================= */
+
+.option-drink {
+
+    width: 115px;
+
+    height: 125px;
+
+    object-fit: contain;
+
+    margin:
+        0 auto 8px;
+
+    transition:
+        transform 0.2s ease;
+}
+
+.whisked-option:hover .option-drink {
+
+    transform:
+        translateY(-5px)
+        rotate(-2deg);
+}
+
+
+/* =========================================================
+   CARD TITLES
+   ========================================================= */
+
+.whisked-option h2 {
+
+    margin:
+        0 0 6px;
+
+    font-family:
+        "Baloo 2",
+        sans-serif;
+
+    font-size: 1.85rem;
+
+    line-height: 1;
+
+    font-weight: 800;
+
+    color: #29420F;
+}
+
+
+/* =========================================================
+   CARD DESCRIPTION
+   ========================================================= */
+
+.whisked-option p {
+
+    margin:
+        0 0 22px;
+
+    font-family:
+        "Quicksand",
+        sans-serif;
+
+    font-size: 0.92rem;
+
+    font-weight: 600;
+
+    color: #777566;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.whisked-option .btn {
+
+    border: none;
+
+    border-radius: 15px;
+
+    padding:
+        11px 18px;
+
+    font-family:
+        "Baloo 2",
+        sans-serif;
+
+    font-size: 1.05rem;
+
+    font-weight: 700;
+
+    transition:
+        transform 0.18s ease;
+}
+
+.whisked-option .btn:hover {
+
+    transform:
+        translateY(-2px);
+}
+
+
+/* =========================================================
+   EVENT
+   ========================================================= */
+
+.whisked-event {
+
+    position: relative;
+
+    margin-top: 70px;
+
+    background: #FFFDF7;
+
+    border:
+        3px solid #EFA3B9;
+
+    border-radius: 30px;
+
+    padding:
+        24px 25px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   EVENT TEXT
+   ========================================================= */
+
+.event-small {
+
+    margin: 0;
+
+    font-family:
+        "Quicksand",
+        sans-serif;
+
+    font-size: 0.75rem;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    text-transform: uppercase;
+
+    color: #D85D7E;
+}
+
+.event-name {
+
+    margin:
+        4px 0 4px;
+
+    font-family:
+        "Baloo 2",
+        sans-serif;
+
+    font-size: 1.65rem;
+
+    font-weight: 800;
+
+    line-height: 1;
+
+    color: #29420F;
+}
+
+.event-details {
+
+    margin:
+        7px 0 0;
+
+    font-family:
+        "Caveat",
+        cursive;
+
+    font-size: 1.35rem;
+
+    font-weight: 600;
+
+    color: #29420F;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.whisked-footer {
+
+    margin-top: 28px;
+
+    text-align: center;
+
+    font-family:
+        "Quicksand",
+        sans-serif;
+
+    font-size: 0.78rem;
+
+    font-weight: 600;
+
+    color: #888477;
+}
+
+.whisked-footer .brand {
+
+    color: #D85D7E;
+
+    font-weight: 800;
+}
+
+.whisked-footer .separator {
+
+    color: #A9B86A;
+
+    margin:
+        0 5px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .whisked-home {
+
+        padding:
+            5px 8px 30px;
+    }
+
+
+    /* Background */
+
+    .background-doodles {
+
+        left: -35px;
+
+        width:
+            calc(100% + 70px);
+    }
+
+
+    .bg-whisk {
+
+        width: 75px;
+
+        left: 0;
+
+        top: 50px;
+    }
+
+
+    .bg-oatside {
+
+        width: 75px;
+
+        right: 0;
+
+        top: 70px;
+    }
+
+
+    .bg-bowl {
+
+        width: 85px;
+
+        left: 0;
+
+        top: 510px;
+    }
+
+
+    .bg-whisk-two {
+
+        width: 70px;
+
+        right: 0;
+
+        top: 620px;
+    }
+
+
+    .bg-oatside-two {
+
+        width: 70px;
+
+        left: 0;
+
+        top: 880px;
+    }
+
+
+    .bg-bowl-two {
+
+        width: 80px;
+
+        right: 0;
+
+        top: 980px;
+    }
+
+
+    .bg-whisk-three,
+    .bg-bowl-three,
+    .bg-oatside-three,
+    .bg-whisk-four,
+    .bg-bowl-four,
+    .bg-oatside-four {
+
+        display: none;
+    }
+
+
+    /* Hero */
+
+    .whisked-hero {
+
+        padding:
+            27px 18px 10px;
+
+        border-radius: 28px;
+    }
+
+
+    .whisked-logo {
+
+        width: 150px;
+    }
+
+
+    .whisked-welcome {
+
+        font-size:
+            3.3rem;
+    }
+
+
+    .whisked-tagline {
+
+        font-size:
+            1.55rem;
+    }
+
+
+    /* =====================================================
+       MOBILE DRINKS
+       ===================================================== */
+
+    .product-strip {
+
+        height: 190px;
+
+        margin-top: 0;
+    }
+
+
+    .product-doodle {
+
+        width: 75px;
+
+        height: 95px;
+    }
+
+
+    /* Left bookend */
+
+    .product-doodle:nth-child(1) {
+
+        left: -3%;
+
+        top: -80px;
+
+        width: 82px;
+    }
+
+
+    /* Four underneath */
+
+    .product-doodle:nth-child(2) {
+
+        left: 12%;
+
+        top: 25px;
+    }
+
+
+    .product-doodle:nth-child(3) {
+
+        left: 34%;
+
+        top: 65px;
+    }
+
+
+    .product-doodle:nth-child(4) {
+
+        left: 53%;
+
+        top: 18px;
+    }
+
+
+    .product-doodle:nth-child(5) {
+
+        left: 75%;
+
+        top: 65px;
+    }
+
+
+    /* Right bookend */
+
+    .product-doodle:nth-child(6) {
+
+        left: 91%;
+
+        top: -78px;
+
+        width: 82px;
+    }
+
+
+    /* Cards */
+
+    .whisked-options {
+
+        margin-top: 55px;
+    }
+
+
+    .whisked-option {
+
+        padding:
+            27px 22px 24px;
+    }
+
+
+    .option-drink {
+
+        width: 105px;
+
+        height: 115px;
+    }
+
+
+    /* Event */
+
+    .whisked-event {
+
+        margin-top: 55px;
+    }
+
+
+    /* Hero decorations */
+
+    .hero-flower-left {
+
+        left: 18px;
+    }
+
+
+    .hero-matcha-right {
+
+        right: 18px;
+    }
+
+
+    .hero-star-left {
+
+        left: 30px;
+    }
+
+
+    .hero-flower-right {
+
+        right: 30px;
+    }
+
+}
+
+</style>
+
+
+<div class="whisked-home">
+
+
+    <!-- =====================================================
+         SCATTERED BACKGROUND DOODLES
+    ====================================================== -->
+
+    <div class="background-doodles">
+
+
+        <!-- TOP LEFT WHISK -->
+
+        <img
+            src="{% static 'images/whisked_bamboo_whisk.png' %}"
+            alt=""
+            class="bg-doodle bg-whisk"
+        >
+
+
+        <!-- TOP RIGHT OATSIDE -->
+
+        <img
+            src="{% static 'images/whisked_oatside_1l.png' %}"
+            alt=""
+            class="bg-doodle bg-oatside"
+        >
+
+
+        <!-- SMALL UPPER WHISK -->
+
+        <img
+            src="{% static 'images/whisked_bamboo_whisk.png' %}"
+            alt=""
+            class="bg-doodle bg-whisk-three"
+        >
+
+
+        <!-- SMALL UPPER BOWL -->
+
+        <img
+            src="{% static 'images/whisked_matcha_bowl.png' %}"
+            alt=""
+            class="bg-doodle bg-bowl-three"
+        >
+
+
+        <!-- LEFT OF CARDS -->
+
+        <img
+            src="{% static 'images/whisked_matcha_bowl.png' %}"
+            alt=""
+            class="bg-doodle bg-bowl"
+        >
+
+
+        <!-- RIGHT OF CARDS -->
+
+        <img
+            src="{% static 'images/whisked_bamboo_whisk.png' %}"
+            alt=""
+            class="bg-doodle bg-whisk-two"
+        >
+
+
+        <!-- BETWEEN CARDS + EVENT -->
+
+        <img
+            src="{% static 'images/whisked_oatside_1l.png' %}"
+            alt=""
+            class="bg-doodle bg-oatside-three"
+        >
+
+        <img
+            src="{% static 'images/whisked_bamboo_whisk.png' %}"
+            alt=""
+            class="bg-doodle bg-whisk-four"
+        >
+
+
+        <!-- LOWER -->
+
+        <img
+            src="{% static 'images/whisked_oatside_1l.png' %}"
+            alt=""
+            class="bg-doodle bg-oatside-two"
+        >
+
+        <img
+            src="{% static 'images/whisked_matcha_bowl.png' %}"
+            alt=""
+            class="bg-doodle bg-bowl-two"
+        >
+
+        <img
+            src="{% static 'images/whisked_matcha_bowl.png' %}"
+            alt=""
+            class="bg-doodle bg-bowl-four"
+        >
+
+        <img
+            src="{% static 'images/whisked_oatside_1l.png' %}"
+            alt=""
+            class="bg-doodle bg-oatside-four"
+        >
+
+
+        <!-- SPARKLES -->
+
+        <span class="bg-sparkle sparkle-one">
+            ✦
+        </span>
+
+        <span class="bg-sparkle sparkle-two">
+            ✿
+        </span>
+
+        <span class="bg-sparkle sparkle-three">
+            ✦
+        </span>
+
+        <span class="bg-sparkle sparkle-four">
+            ✧
+        </span>
+
+        <span class="bg-sparkle sparkle-five">
+            ✿
+        </span>
+
+        <span class="bg-sparkle sparkle-six">
+            ✦
+        </span>
+
+        <span class="bg-sparkle sparkle-seven">
+            ✧
+        </span>
+
+        <span class="bg-sparkle sparkle-eight">
+            ✿
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="whisked-hero">
+
+
+        <!-- HERO SHAPES -->
+
+        <span
+            class="hero-shape hero-shape-pink">
+        </span>
+
+        <span
+            class="hero-shape hero-shape-green">
+        </span>
+
+
+        <!-- HERO DECORATIONS -->
+
+        <span class="hero-flower-left">
+            🌸
+        </span>
+
+        <span class="hero-matcha-right">
+            🍵
+        </span>
+
+        <span class="hero-star-left">
+            ✦
+        </span>
+
+        <span class="hero-flower-right">
+            ✿
+        </span>
+
+
+        <!-- LOGO -->
+
+        <img
+            src="{% static 'images/logo-pink.png' %}"
+            alt="Whisked by Aly"
+            class="whisked-logo"
+        >
+
+
+        <!-- WELCOME -->
+
+        <h1 class="whisked-welcome">
+            Welcome!
+        </h1>
+
+
+        <!-- TAGLINE -->
+
+        <p class="whisked-tagline">
+            blending cultures together
+        </p>
+
+
+        <!-- =================================================
+             DRINKS
+        ================================================== -->
+
+        <div class="product-strip">
+
+
+            <!-- 1 — LEFT BOOKEND -->
+
+            <img
+                src="{% static 'images/products/chocnut-hojicha.png' %}"
+                alt="Chocnut Hojicha"
+                class="product-doodle"
+            >
+
+
+            <!-- 2 -->
+
+            <img
+                src="{% static 'images/products/pastillas-matcha.png' %}"
+                alt="Pastillas Matcha"
+                class="product-doodle"
+            >
+
+
+            <!-- 3 -->
+
+            <img
+                src="{% static 'images/products/chocnut-matcha.png' %}"
+                alt="Chocnut Matcha"
+                class="product-doodle"
+            >
+
+
+            <!-- 4 -->
+
+            <img
+                src="{% static 'images/products/mais-con-yelo-matcha.png' %}"
+                alt="Mais Con Yelo Matcha"
+                class="product-doodle"
+            >
+
+
+            <!-- 5 -->
+
+            <img
+                src="{% static 'images/products/yema-matcha.png' %}"
+                alt="Yema Matcha"
+                class="product-doodle"
+            >
+
+
+            <!-- 6 — RIGHT BOOKEND -->
+
+            <img
+                src="{% static 'images/products/matcha-oat-latte.png' %}"
+                alt="Matcha Oat Latte"
+                class="product-doodle"
+            >
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         POS + BUSINESS DASHBOARD
+    ====================================================== -->
+
+    <section class="whisked-options">
+
+        <div class="row justify-content-center g-4">
+
+
+            <!-- POS MACHINE -->
+
+            <div class="col-lg-5 col-md-6">
+
+                <div class="whisked-option">
+
+                    <img
+                        src="{% static 'images/whisked_pos_cartoon.png' %}"
+                        alt="POS Machine"
+                        class="option-drink"
+                    >
+
+                    <h2>
+                        POS Machine
+                    </h2>
+
+                    <p>
+                        Start taking customer orders.
+                    </p>
+
+                    <a
+                        href="/pos/"
+                        class="btn btn-whisked w-100"
+                    >
+                        Open POS
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- BUSINESS DASHBOARD -->
+
+            <div class="col-lg-5 col-md-6">
+
+                <div
+                    class="
+                        whisked-option
+                        dashboard-card-home
+                    "
+                >
+
+                    <img
+                        src="{% static 'images/whisked_dashboard_cartoon.png' %}"
+                        alt="Business Dashboard"
+                        class="option-drink"
+                    >
+
+                    <h2>
+                        Business Dashboard
+                    </h2>
+
+                    <p>
+                        Reports, inventory, sales and finance.
+                    </p>
+
+                    <a
+                        href="/dashboard/"
+                        class="btn btn-pink w-100"
+                    >
+                        Open Dashboard
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         EVENT
+    ====================================================== -->
+
+    <section class="whisked-event">
+
+        <p class="event-small">
+            ✦ Find us here ✦
+        </p>
+
+        <h2 class="event-name">
+            Despensa Marikina Weekend Market
+        </h2>
+
+        <p class="event-details">
+            August 29–30, 2026
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="whisked-footer">
+
+        <small>
+
+            <span class="brand">
+                Whisked by Aly
+            </span>
+
+            <span class="separator">
+                •
+            </span>
+
+            Despensa Marikina Weekend Market
+
+            <span class="separator">
+                •
+            </span>
+
+            August 29–30, 2026
+
+        </small>
+
+    </footer>
+
+
+</div>
+
+{% endblock %}

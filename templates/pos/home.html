@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
 POS | Whisked by Aly
@@ -13,12 +14,18 @@ POS | Whisked by Aly
          HEADER
     =========================================== -->
 
-    <div class="pos-header">
+   <div class="pos-header">
 
-        <div>
-            <h1>🍵 Whisked by Aly</h1>
-            <p>Point of Sale</p>
-        </div>
+    <div>
+        <h1>Whisked by Aly</h1>
+        <p>Point of Sale</p>
+    </div>
+
+    <div class="pos-header-buttons">
+
+        <a href="/pos/sales/" class="btn btn-whisked">
+            Sales
+        </a>
 
         <a href="/" class="btn btn-pink">
             ← Home
@@ -26,6 +33,7 @@ POS | Whisked by Aly
 
     </div>
 
+</div>
 
     <!-- ==========================================
          POS CONTENT
@@ -59,16 +67,38 @@ POS | Whisked by Aly
                         <button
                             type="button"
                             class="product-button"
-                            onclick="addToCart(
-                                {{ product.id }},
-                                '{{ product.name|escapejs }}',
-                                {{ product.price }}
-                            )"
-                        >
+                            onclick="addToCart({{ product.id }}, '{{ product.name|escapejs }}', {{ product.price }})" >
 
-                            <span class="product-icon">
-                                🍵
-                            </span>
+                            {% if product.name == "Pastillas Matcha" %}
+                                <img src="{% static 'images/products/pastillas-matcha.png' %}"
+                                    class="product-image"
+                                    alt="Pastillas Matcha">
+
+                            {% elif product.name == "Chocnut Matcha" %}
+                                <img src="{% static 'images/products/chocnut-matcha.png' %}"
+                                    class="product-image"
+                                    alt="Chocnut Matcha">
+
+                            {% elif product.name == "Mais Con Yelo Matcha" %}
+                                <img src="{% static 'images/products/mais-con-yelo-matcha.png' %}"
+                                    class="product-image"
+                                    alt="Mais Con Yelo Matcha">
+
+                            {% elif product.name == "Yema Matcha" %}
+                                <img src="{% static 'images/products/yema-matcha.png' %}"
+                                    class="product-image"
+                                    alt="Yema Matcha">
+
+                            {% elif product.name == "Matcha Oat Latte" %}
+                                <img src="{% static 'images/products/matcha-oat-latte.png' %}"
+                                    class="product-image"
+                                    alt="Matcha Oat Latte">
+                            {% elif product.name == "Chocnut Hojicha" %}
+                                <img src="{% static 'images/products/chocnut-hojicha.png' %}"
+                                    class="product-image"
+                                    alt="Chocnut Hojicha">
+
+                            {% endif %}
 
                             <span class="product-name">
                                 {{ product.name }}

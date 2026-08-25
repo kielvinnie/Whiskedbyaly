@@ -1,95 +1,701 @@
 {% extends "base.html" %}
-{% load static %}
 
 {% block title %}
-Whisked POS
+Business Dashboard | Whisked by Aly
 {% endblock %}
 
 {% block content %}
 
-<div class="text-center">
+<div class="sales-page">
 
-    <img
-        src="{% static 'images/logo-pink.png' %}"
-        class="logo-home mb-4">
+    <!-- ==========================================
+         DASHBOARD HEADER
+    =========================================== -->
 
-    <h1 class="display-4 fw-bold">
+    <div class="sales-header">
 
-        Welcome!
-
-    </h1>
-
-    <p class="lead">
-
-        Freshly whisked. Lovingly crafted.
-
-    </p>
-
-</div>
-
-<div class="row justify-content-center mt-5">
-
-    <div class="col-lg-4 mb-4">
-
-        <div class="home-card">
-
-            <div class="icon">
-
-                🛒
-
-            </div>
-
-            <h3>
-
-                POS Machine
-
-            </h3>
+        <div>
+            <h1>
+                📊 Business Dashboard
+            </h1>
 
             <p>
-
-                Start taking customer orders.
-
+                Whisked by Aly • Business Overview
             </p>
+        </div>
 
-            <a href="/pos/"
-               class="btn btn-whisked w-100">
+        <div class="sales-header-buttons">
 
+            <a
+                href="/"
+                class="btn btn-whisked"
+            >
+                ← Home
+            </a>
+
+            <a
+                href="/pos/"
+                class="btn btn-pink"
+            >
                 Open POS
-
             </a>
 
         </div>
 
     </div>
 
-    <div class="col-lg-4">
 
-        <div class="home-card">
+    <!-- ==========================================
+         OVERALL BUSINESS
+    =========================================== -->
 
-            <div class="icon">
+    <div class="sales-card mb-4">
 
-                📊
+        <div class="sales-card-header">
+
+            <h2>
+                Overall Business
+            </h2>
+
+            <p>
+                All-time business performance
+            </p>
+
+        </div>
+
+
+        <div class="row g-4">
+
+
+            <!-- TOTAL SALES -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="stat-card h-100">
+
+                    <div class="summary-icon">
+                        💰
+                    </div>
+
+                    <small>
+                        Total Sales
+                    </small>
+
+                    <h2>
+                        ₱{{ overall_total_sales|floatformat:2 }}
+                    </h2>
+
+                    <small>
+                        All-time
+                    </small>
+
+                </div>
 
             </div>
 
-            <h3>
 
-                Business Dashboard
+            <!-- TRANSACTIONS -->
 
-            </h3>
+            <div class="col-lg-3 col-md-6">
+
+                <div class="stat-card h-100">
+
+                    <div class="summary-icon">
+                        🧾
+                    </div>
+
+                    <small>
+                        Transactions
+                    </small>
+
+                    <h2>
+                        {{ overall_transactions_count }}
+                    </h2>
+
+                    <small>
+                        All-time
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- PRODUCTS SOLD -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="stat-card h-100">
+
+                    <div class="summary-icon">
+                        🛍️
+                    </div>
+
+                    <small>
+                        Products Sold
+                    </small>
+
+                    <h2>
+                        {{ overall_products_sold }}
+                    </h2>
+
+                    <small>
+                        Total units
+                    </small>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIVE PRODUCTS -->
+
+            <div class="col-lg-3 col-md-6">
+
+                <div class="stat-card h-100">
+
+                    <div class="summary-icon">
+                        📦
+                    </div>
+
+                    <small>
+                        Active Products
+                    </small>
+
+                    <h2>
+                        {{ total_products }}
+                    </h2>
+
+                    <small>
+                        Currently active
+                    </small>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- BEST SELLER -->
+
+        <div class="mt-4">
+
+            <div class="sales-summary-card">
+
+                <div class="summary-icon">
+                    🏆
+                </div>
+
+                <div>
+
+                    <small>
+                        Overall Best Seller
+                    </small>
+
+                    <h2>
+
+                        {% if overall_best_seller %}
+
+                            {{ overall_best_seller.product__name }}
+
+                        {% else %}
+
+                            No sales yet
+
+                        {% endif %}
+
+                    </h2>
+
+                    {% if overall_best_seller %}
+
+                        <small>
+                            {{ overall_best_seller.total_quantity }}
+                            units sold
+                        </small>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         SALES ANALYSIS
+    =========================================== -->
+
+    <div class="sales-card">
+
+        <div class="sales-card-header">
+
+            <h2>
+                Sales Analysis
+            </h2>
 
             <p>
-
-                Reports, inventory, sales and finance.
-
+                View sales based on a selected date, month, or year.
             </p>
 
-            <a href="/dashboard/"
-               class="btn btn-pink w-100">
+        </div>
 
-                Open Dashboard
 
-            </a>
+        <!-- ======================================
+             FILTER
+        ======================================= -->
+
+        <form method="GET">
+
+            <div class="row g-3 align-items-end">
+
+
+                <!-- VIEW BY -->
+
+                <div class="col-md-3">
+
+                    <label
+                        for="period"
+                        class="form-label fw-semibold"
+                    >
+                        View Sales By
+                    </label>
+
+                    <select
+                        name="period"
+                        id="period"
+                        class="form-select"
+                        onchange="changePeriod()"
+                    >
+
+                        <option
+                            value="day"
+                            {% if period == "day" %}
+                                selected
+                            {% endif %}
+                        >
+                            Date
+                        </option>
+
+                        <option
+                            value="month"
+                            {% if period == "month" %}
+                                selected
+                            {% endif %}
+                        >
+                            Month
+                        </option>
+
+                        <option
+                            value="year"
+                            {% if period == "year" %}
+                                selected
+                            {% endif %}
+                        >
+                            Year
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- DATE -->
+
+                <div
+                    class="col-md-3"
+                    id="date-filter"
+                >
+
+                    <label
+                        for="date"
+                        class="form-label fw-semibold"
+                    >
+                        Date
+                    </label>
+
+                    <input
+                        type="date"
+                        name="date"
+                        id="date"
+                        class="form-control"
+                        value="{{ selected_date }}"
+                    >
+
+                </div>
+
+
+                <!-- MONTH -->
+
+                <div
+                    class="col-md-3"
+                    id="month-filter"
+                    style="display:none;"
+                >
+
+                    <label
+                        for="month"
+                        class="form-label fw-semibold"
+                    >
+                        Month
+                    </label>
+
+                    <input
+                        type="month"
+                        name="month"
+                        id="month"
+                        class="form-control"
+                        value="{{ selected_month }}"
+                    >
+
+                </div>
+
+
+                <!-- YEAR -->
+
+                <div
+                    class="col-md-3"
+                    id="year-filter"
+                    style="display:none;"
+                >
+
+                    <label
+                        for="year"
+                        class="form-label fw-semibold"
+                    >
+                        Year
+                    </label>
+
+                    <input
+                        type="number"
+                        name="year"
+                        id="year"
+                        class="form-control"
+                        value="{{ selected_year }}"
+                        min="2000"
+                        max="2100"
+                        placeholder="2026"
+                    >
+
+                </div>
+
+
+                <!-- BUTTON -->
+
+                <div class="col-md-3">
+
+                    <button
+                        type="submit"
+                        class="btn btn-pink w-100"
+                    >
+                        View Sales
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+        <!-- ======================================
+             FILTERED SUMMARY
+        ======================================= -->
+
+        <div class="row g-4 mt-4">
+
+
+            <!-- PERIOD SALES -->
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="sales-summary-card h-100">
+
+                    <div class="summary-icon">
+                        💰
+                    </div>
+
+                    <div>
+
+                        <small>
+                            Sales for Selected Period
+                        </small>
+
+                        <h2>
+                            ₱{{ filtered_total_sales|floatformat:2 }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- TRANSACTIONS -->
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="sales-summary-card h-100">
+
+                    <div class="summary-icon">
+                        🧾
+                    </div>
+
+                    <div>
+
+                        <small>
+                            Transactions
+                        </small>
+
+                        <h2>
+                            {{ filtered_transactions_count }}
+                        </h2>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- BEST SELLER -->
+
+            <div class="col-lg-4 col-md-12">
+
+                <div class="sales-summary-card h-100">
+
+                    <div class="summary-icon">
+                        🏆
+                    </div>
+
+                    <div>
+
+                        <small>
+                            Best Seller
+                        </small>
+
+                        <h2>
+
+                            {% if filtered_best_seller %}
+
+                                {{ filtered_best_seller.product__name }}
+
+                            {% else %}
+
+                                No sales
+
+                            {% endif %}
+
+                        </h2>
+
+                        {% if filtered_best_seller %}
+
+                            <small>
+                                {{ filtered_best_seller.total_quantity }}
+                                units sold
+                            </small>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ======================================
+             SALES DETAILS
+        ======================================= -->
+
+        <div class="sales-card mt-4">
+
+            <div class="sales-card-header">
+
+                <h2>
+                    Sales Details
+                </h2>
+
+                <p>
+                    Transactions included in the selected period.
+                </p>
+
+            </div>
+
+
+            {% if filtered_transactions %}
+
+                <div class="table-responsive">
+
+                    <table class="sales-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Transaction
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Items
+                                </th>
+
+                                <th>
+                                    Payment
+                                </th>
+
+                                <th>
+                                    Total
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for transaction in filtered_transactions %}
+
+                                <tr>
+
+                                    <!-- TRANSACTION -->
+
+                                    <td>
+
+                                        <strong>
+                                            #{{ transaction.id }}
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- DATE -->
+
+                                    <td>
+
+                                        <div class="transaction-date">
+
+                                            {{ transaction.transaction_date|date:"M d, Y" }}
+
+                                            <br>
+
+                                            <small>
+                                                {{ transaction.transaction_date|date:"h:i A" }}
+                                            </small>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- ITEMS -->
+
+                                    <td>
+
+                                        <div class="sales-items">
+
+                                            {% for item in transaction.items.all %}
+
+                                                <span>
+
+                                                    {{ item.product.name }}
+
+                                                    × {{ item.quantity }}
+
+                                                </span>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- PAYMENT -->
+
+                                    <td>
+
+                                        {% if transaction.payment_method == "cash" %}
+
+                                            <span class="payment-badge cash">
+                                                Cash
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="payment-badge qr">
+                                                QR
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- TOTAL -->
+
+                                    <td>
+
+                                        <strong class="transaction-total">
+
+                                            ₱{{ transaction.total|floatformat:2 }}
+
+                                        </strong>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+            {% else %}
+
+                <div class="no-sales">
+
+                    <div>
+                        📊
+                    </div>
+
+                    <h3>
+                        No Sales Found
+                    </h3>
+
+                    <p>
+                        There are no transactions for the selected period.
+                    </p>
+
+                    <a
+                        href="/pos/"
+                        class="btn btn-whisked"
+                    >
+                        Open POS
+                    </a>
+
+                </div>
+
+            {% endif %}
 
         </div>
 
@@ -97,14 +703,61 @@ Whisked POS
 
 </div>
 
-<div class="text-center mt-5">
 
-    <small>
+<script>
 
-        Version 1.0 • Whisked by Aly
+function changePeriod() {
 
-    </small>
+    const period =
+        document.getElementById("period").value;
 
-</div>
+    const dateFilter =
+        document.getElementById("date-filter");
+
+    const monthFilter =
+        document.getElementById("month-filter");
+
+    const yearFilter =
+        document.getElementById("year-filter");
+
+
+    dateFilter.style.display = "none";
+
+    monthFilter.style.display = "none";
+
+    yearFilter.style.display = "none";
+
+
+    if (period === "day") {
+
+        dateFilter.style.display = "block";
+
+    }
+
+    else if (period === "month") {
+
+        monthFilter.style.display = "block";
+
+    }
+
+    else if (period === "year") {
+
+        yearFilter.style.display = "block";
+
+    }
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        changePeriod();
+
+    }
+);
+
+</script>
 
 {% endblock %}

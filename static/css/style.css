@@ -470,35 +470,29 @@ a{
 /* ---------- PRODUCT BUTTONS ---------- */
 
 .product-button{
-
     width:100%;
-
-    min-height:170px;
-
+    height:230px;
     border:none;
-
     background:var(--cream);
-
     border-radius:22px;
-
-    padding:20px;
-
+    padding:10px;
     display:flex;
-
     flex-direction:column;
-
     justify-content:center;
-
     align-items:center;
-
     text-align:center;
-
     transition:.2s;
-
     cursor:pointer;
-
     font-family:inherit;
-
+    overflow:hidden;
+}
+.product-image {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 5px;
+    flex-shrink: 0;
 }
 
 .product-button:hover{
@@ -1883,5 +1877,4 @@ a{
     .sales-card {
         padding: 18px;
     }
-
 }
