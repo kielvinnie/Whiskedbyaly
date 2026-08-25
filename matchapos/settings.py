@@ -32,14 +32,19 @@ DEBUG = os.environ.get(
     "True"
 ).lower() == "true"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "whiskedbyaly.onrender.com",
+]
 
 if os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
-    CSRF_TRUSTED_ORIGINS = [
-        f"https://{os.environ.get('RENDER_EXTERNAL_HOSTNAME')}"
-    ]
-else:
-    CSRF_TRUSTED_ORIGINS = []
+    ALLOWED_HOSTS.append(
+        os.environ.get("RENDER_EXTERNAL_HOSTNAME")
+    )
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://whiskedbyaly.onrender.com",
+]
+
 
 
 # Application definition
