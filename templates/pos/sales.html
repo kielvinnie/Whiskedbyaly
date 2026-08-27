@@ -13,11 +13,13 @@ Sales | Whisked by Aly
     <div class="sales-header">
 
         <div>
+
             <h1>📊 Sales</h1>
 
             <p>
                 Whisked by Aly • Sales Overview
             </p>
+
         </div>
 
         <div class="sales-header-buttons">
@@ -217,6 +219,14 @@ Sales | Whisked by Aly
                             Total
                         </th>
 
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Action
+                        </th>
+
                     </tr>
 
                 </thead>
@@ -226,7 +236,12 @@ Sales | Whisked by Aly
 
                     {% for transaction in transactions %}
 
-                    <tr>
+                    <tr
+                        id="transaction-row-{{ transaction.id }}"
+                        class="{% if transaction.status == 'voided' %}voided-row{% endif %}"
+                    >
+
+                        <!-- TRANSACTION -->
 
                         <td>
 
@@ -236,6 +251,8 @@ Sales | Whisked by Aly
 
                         </td>
 
+
+                        <!-- DATE -->
 
                         <td>
 
@@ -253,6 +270,8 @@ Sales | Whisked by Aly
 
                         </td>
 
+
+                        <!-- ITEMS -->
 
                         <td>
 
@@ -277,6 +296,8 @@ Sales | Whisked by Aly
                         </td>
 
 
+                        <!-- PAYMENT -->
+
                         <td>
 
                             {% if transaction.payment_method == "cash" %}
@@ -296,14 +317,14 @@ Sales | Whisked by Aly
                         </td>
 
 
+                        <!-- REFERENCE -->
+
                         <td>
 
                             {% if transaction.reference_number %}
 
                             <span class="reference-number">
-
                                 {{ transaction.reference_number }}
-
                             </span>
 
                             {% else %}
@@ -317,6 +338,8 @@ Sales | Whisked by Aly
                         </td>
 
 
+                        <!-- TOTAL -->
+
                         <td>
 
                             <strong class="transaction-total">
@@ -324,6 +347,57 @@ Sales | Whisked by Aly
                                 ₱{{ transaction.total|floatformat:2 }}
 
                             </strong>
+
+                        </td>
+
+
+                        <!-- STATUS -->
+
+                        <td>
+
+                            {% if transaction.status == "voided" %}
+
+                            <span class="status-badge voided">
+                                ❌ Voided
+                            </span>
+
+                            {% else %}
+
+                            <span class="status-badge completed">
+                                ✓ Completed
+                            </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <!-- ACTION -->
+
+                        <td>
+
+                            {% if transaction.status != "voided" %}
+
+                            <button
+                                type="button"
+                                class="void-order-button"
+                                onclick="openVoidModal(
+                                    {{ transaction.id }},
+                                    '{{ transaction.total|floatformat:2 }}'
+                                )"
+                            >
+
+                                Void Order
+
+                            </button>
+
+                            {% else %}
+
+                            <span class="already-voided">
+                                Voided
+                            </span>
+
+                            {% endif %}
 
                         </td>
 
@@ -367,5 +441,707 @@ Sales | Whisked by Aly
     </div>
 
 </div>
+
+
+<!-- ==================================================
+                    VOID CONFIRMATION MODAL
+================================================== -->
+
+<div
+    id="void-modal"
+    class="void-modal"
+>
+
+    <div class="void-modal-box">
+
+        <button
+            type="button"
+            class="void-modal-close"
+            onclick="closeVoidModal()"
+        >
+            ×
+        </button>
+
+
+        <div class="void-icon">
+            ⚠️
+        </div>
+
+
+        <h2>
+            Void Order?
+        </h2>
+
+
+        <p class="void-question">
+
+            Are you sure you want to void
+
+            <strong>
+                Transaction #<span id="void-transaction-id"></span>
+            </strong>?
+
+        </p>
+
+
+        <div class="void-total">
+
+            <span>
+                Order Total
+            </span>
+
+            <strong>
+                ₱<span id="void-transaction-total"></span>
+            </strong>
+
+        </div>
+
+
+        <!-- VOID REASON -->
+
+        <div class="void-reason-container">
+
+            <label for="void-reason">
+                Reason
+                <span>(optional)</span>
+            </label>
+
+            <textarea
+                id="void-reason"
+                rows="3"
+                placeholder="e.g. Customer cancelled order"
+            ></textarea>
+
+        </div>
+
+
+        <div
+            id="void-error"
+            class="void-error"
+        ></div>
+
+
+        <div class="void-modal-buttons">
+
+            <button
+                type="button"
+                class="void-back-button"
+                onclick="closeVoidModal()"
+            >
+
+                ← Go Back
+
+            </button>
+
+
+            <button
+                type="button"
+                class="void-confirm-button"
+                onclick="confirmVoid()"
+            >
+
+                ❌ Void Order
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+                    VOID JAVASCRIPT
+================================================== -->
+
+<script>
+
+let transactionToVoid = null;
+
+
+/* ==========================================
+   OPEN VOID MODAL
+========================================== */
+
+function openVoidModal(
+    transactionId,
+    transactionTotal
+) {
+
+    transactionToVoid =
+        transactionId;
+
+
+    document.getElementById(
+        "void-transaction-id"
+    ).textContent =
+        transactionId;
+
+
+    document.getElementById(
+        "void-transaction-total"
+    ).textContent =
+        transactionTotal;
+
+
+    document.getElementById(
+        "void-reason"
+    ).value = "";
+
+
+    document.getElementById(
+        "void-error"
+    ).textContent = "";
+
+
+    document.getElementById(
+        "void-modal"
+    ).classList.add("show");
+
+}
+
+
+/* ==========================================
+   CLOSE VOID MODAL
+========================================== */
+
+function closeVoidModal() {
+
+    transactionToVoid = null;
+
+    document.getElementById(
+        "void-modal"
+    ).classList.remove("show");
+
+}
+
+
+/* ==========================================
+   CONFIRM VOID
+========================================== */
+
+async function confirmVoid() {
+
+    if (!transactionToVoid) {
+        return;
+    }
+
+
+    const reason =
+        document.getElementById(
+            "void-reason"
+        ).value.trim();
+
+
+    const errorElement =
+        document.getElementById(
+            "void-error"
+        );
+
+
+    errorElement.textContent =
+        "";
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                `/pos/sales/void/${transactionToVoid}/`,
+
+                {
+
+                    method: "POST",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "X-CSRFToken":
+                            getCookie(
+                                "csrftoken"
+                            )
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            reason:
+                                reason
+
+                        })
+
+                }
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if (result.success) {
+
+            closeVoidModal();
+
+
+            /*
+                Reload the Sales page so the
+                transaction immediately shows
+                as VOIDED.
+            */
+
+            window.location.reload();
+
+        }
+
+        else {
+
+            errorElement.textContent =
+                result.error ||
+                "Unable to void this order.";
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "VOID ERROR:",
+            error
+        );
+
+        errorElement.textContent =
+            "Something went wrong. Please try again.";
+
+    }
+
+}
+
+
+/* ==========================================
+   CSRF COOKIE
+========================================== */
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+
+    if (
+        document.cookie &&
+        document.cookie !== ""
+    ) {
+
+        const cookies =
+            document.cookie.split(";");
+
+
+        for (
+            let cookie of cookies
+        ) {
+
+            cookie =
+                cookie.trim();
+
+
+            if (
+                cookie.substring(
+                    0,
+                    name.length + 1
+                ) ===
+                (name + "=")
+            ) {
+
+                cookieValue =
+                    decodeURIComponent(
+                        cookie.substring(
+                            name.length + 1
+                        )
+                    );
+
+                break;
+
+            }
+
+        }
+
+    }
+
+
+    return cookieValue;
+
+}
+
+</script>
+
+
+<!-- ==================================================
+                    VOID STYLING
+================================================== -->
+
+<style>
+
+.void-order-button {
+    border: 2px solid #e7a0b5;
+
+    background: #fff5f7;
+
+    color: #a33f5b;
+
+    border-radius: 10px;
+
+    padding: 8px 12px;
+
+    font-size: 0.85rem;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition: all 0.2s ease;
+}
+
+.void-order-button:hover {
+    background: #f8dce7;
+
+    border-color: #d9829f;
+
+    transform: translateY(-1px);
+}
+
+
+/* ==========================================
+   STATUS BADGES
+========================================== */
+
+.status-badge {
+    display: inline-block;
+
+    padding: 6px 10px;
+
+    border-radius: 20px;
+
+    font-size: 0.8rem;
+
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+.status-badge.completed {
+    background: #edf5dc;
+
+    color: #557b17;
+}
+
+.status-badge.voided {
+    background: #f9e1e6;
+
+    color: #a33f5b;
+}
+
+
+/* ==========================================
+   VOIDED ROW
+========================================== */
+
+.voided-row {
+    opacity: 0.65;
+
+    background: #fafafa;
+}
+
+.voided-row .transaction-total {
+    text-decoration: line-through;
+
+    color: #999;
+}
+
+.already-voided {
+    color: #999;
+
+    font-size: 0.85rem;
+
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   VOID MODAL
+========================================== */
+
+.void-modal {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 10000;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(40, 35, 25, 0.45);
+
+    backdrop-filter: blur(5px);
+}
+
+.void-modal.show {
+    display: flex;
+}
+
+
+.void-modal-box {
+    position: relative;
+
+    width: min(500px, 94vw);
+
+    background: #fffdf9;
+
+    border-radius: 25px;
+
+    padding: 32px;
+
+    box-shadow:
+        0 25px 70px rgba(70, 50, 40, 0.25);
+
+    text-align: center;
+}
+
+
+.void-modal-close {
+    position: absolute;
+
+    top: 15px;
+
+    right: 18px;
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 1.8rem;
+
+    color: #777;
+
+    cursor: pointer;
+}
+
+
+.void-icon {
+    font-size: 3rem;
+
+    margin-bottom: 10px;
+}
+
+
+.void-modal-box h2 {
+    margin: 0 0 10px;
+
+    font-weight: 800;
+
+    color: #333;
+}
+
+
+.void-question {
+    color: #666;
+
+    line-height: 1.5;
+
+    margin-bottom: 20px;
+}
+
+
+.void-total {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 16px 18px;
+
+    background: #fff4f6;
+
+    border-radius: 15px;
+
+    margin-bottom: 20px;
+}
+
+
+.void-total span {
+    color: #666;
+
+    font-weight: 600;
+}
+
+
+.void-total strong {
+    color: #a33f5b;
+
+    font-size: 1.2rem;
+}
+
+
+/* ==========================================
+   VOID REASON
+========================================== */
+
+.void-reason-container {
+    text-align: left;
+
+    margin-bottom: 15px;
+}
+
+.void-reason-container label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-weight: 700;
+
+    color: #333;
+}
+
+.void-reason-container label span {
+    font-weight: 400;
+
+    color: #999;
+}
+
+.void-reason-container textarea {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    resize: vertical;
+
+    border: 2px solid #e3d8d0;
+
+    border-radius: 13px;
+
+    padding: 12px;
+
+    font-family: inherit;
+
+    outline: none;
+}
+
+.void-reason-container textarea:focus {
+    border-color: #d9829f;
+
+    box-shadow:
+        0 0 0 3px rgba(217, 130, 159, 0.1);
+}
+
+
+/* ==========================================
+   VOID ERROR
+========================================== */
+
+.void-error {
+    min-height: 20px;
+
+    color: #c0395b;
+
+    font-size: 0.85rem;
+
+    font-weight: 600;
+
+    margin-bottom: 8px;
+}
+
+
+/* ==========================================
+   VOID BUTTONS
+========================================== */
+
+.void-modal-buttons {
+    display: flex;
+
+    gap: 12px;
+
+    margin-top: 5px;
+}
+
+
+.void-back-button,
+.void-confirm-button {
+    flex: 1;
+
+    min-height: 52px;
+
+    border-radius: 13px;
+
+    font-size: 0.95rem;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+
+.void-back-button {
+    border: 2px solid #ead8df;
+
+    background: white;
+
+    color: #7d4057;
+}
+
+
+.void-back-button:hover {
+    background: #fff3f7;
+}
+
+
+.void-confirm-button {
+    border: none;
+
+    background: #c95772;
+
+    color: white;
+}
+
+
+.void-confirm-button:hover {
+    background: #b64762;
+
+    transform: translateY(-1px);
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 700px) {
+
+    .void-modal-box {
+        padding: 25px 20px;
+    }
+
+    .void-modal-buttons {
+        flex-direction: column;
+    }
+
+}
+
+</style>
 
 {% endblock %}

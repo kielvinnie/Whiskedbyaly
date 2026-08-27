@@ -33,6 +33,16 @@ class Transaction(models.Model):
         ("qr", "QR"),
     ]
 
+    CUSTOMER_TYPES = [
+        ("regular", "Regular"),
+        ("sc_pwd", "SC / PWD"),
+    ]
+
+    STATUS_CHOICES = [
+        ("completed", "Completed"),
+        ("voided", "Voided"),
+    ]
+
     transaction_date = models.DateTimeField(
         auto_now_add=True
     )
@@ -64,9 +74,44 @@ class Transaction(models.Model):
         default=""
     )
 
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="completed"
+    )
+
+    void_reason = models.TextField(
+        blank=True,
+        default=""
+    )
+
+    voided_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    # CUSTOMER / DISCOUNT
+
+    customer_type = models.CharField(
+        max_length=20,
+        choices=CUSTOMER_TYPES,
+        default="regular"
+    )
+
+    discount_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0
+    )
+
+    discount_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
     def __str__(self):
         return f"Transaction #{self.id}"
-
 
 class OrderItem(models.Model):
 

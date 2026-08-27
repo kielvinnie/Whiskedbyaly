@@ -52,9 +52,45 @@ def checkout(request):
             )
 
 
-        # ---------------------------------
+        # ==========================================
+        # CUSTOMER TYPE
+        # ==========================================
+
+        customer_type = data.get(
+            "customer_type",
+            "regular"
+        )
+
+        if customer_type not in [
+            "regular",
+            "sc_pwd"
+        ]:
+
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Invalid customer type."
+                },
+                status=400
+            )
+
+
+        # ==========================================
+        # DISCOUNT
+        # ==========================================
+
+        if customer_type == "sc_pwd":
+
+            discount_percentage = Decimal("20.00")
+
+        else:
+
+            discount_percentage = Decimal("0.00")
+
+
+        # ==========================================
         # PAYMENT INFORMATION
-        # ---------------------------------
+        # ==========================================
 
         payment_method = data.get(
             "payment_method",
@@ -67,7 +103,10 @@ def checkout(request):
         ).strip()
 
 
-        if payment_method not in ["cash", "qr"]:
+        if payment_method not in [
+            "cash",
+            "qr"
+        ]:
 
             return JsonResponse(
                 {
@@ -80,7 +119,10 @@ def checkout(request):
 
         # QR requires a reference number
 
-        if payment_method == "qr" and not reference_number:
+        if (
+            payment_method == "qr"
+            and not reference_number
+        ):
 
             return JsonResponse(
                 {
@@ -92,27 +134,33 @@ def checkout(request):
             )
 
 
-        # Cash transactions don't need a reference number
+        # Cash transactions don't need
+        # a reference number
 
         if payment_method == "cash":
 
             reference_number = ""
 
 
-        # ---------------------------------
+        # ==========================================
         # AMOUNT PAID
-        # ---------------------------------
+        # ==========================================
 
         amount_paid = Decimal(
-            str(data.get("amount_paid", 0))
+            str(
+                data.get(
+                    "amount_paid",
+                    0
+                )
+            )
         )
 
 
-        # ---------------------------------
-        # CALCULATE TOTAL FROM DATABASE
-        # ---------------------------------
+        # ==========================================
+        # CALCULATE ORIGINAL TOTAL
+        # ==========================================
 
-        total = Decimal("0.00")
+        original_total = Decimal("0.00")
 
 
         for item in items:
@@ -126,17 +174,65 @@ def checkout(request):
                 item["quantity"]
             )
 
+            if quantity <= 0:
+
+                return JsonResponse(
+                    {
+                        "success": False,
+                        "error":
+                            "Invalid quantity."
+                    },
+                    status=400
+                )
+
+
             subtotal = (
                 product.price *
                 quantity
             )
 
-            total += subtotal
+            original_total += subtotal
 
 
-        # ---------------------------------
+        # ==========================================
+        # CALCULATE DISCOUNT AMOUNT
+        # ==========================================
+
+        discount_amount = (
+            original_total *
+            discount_percentage /
+            Decimal("100")
+        )
+
+
+        # ==========================================
+        # FINAL TOTAL
+        # ==========================================
+
+        total = (
+            original_total -
+            discount_amount
+        )
+
+
+        # Make sure Decimal is properly rounded
+
+        discount_amount = (
+            discount_amount.quantize(
+                Decimal("0.01")
+            )
+        )
+
+        total = (
+            total.quantize(
+                Decimal("0.01")
+            )
+        )
+
+
+        # ==========================================
         # QR PAYMENT
-        # ---------------------------------
+        # ==========================================
 
         if payment_method == "qr":
 
@@ -145,9 +241,9 @@ def checkout(request):
             amount_paid = total
 
 
-        # ---------------------------------
+        # ==========================================
         # CASH PAYMENT
-        # ---------------------------------
+        # ==========================================
 
         if payment_method == "cash":
 
@@ -163,16 +259,21 @@ def checkout(request):
                 )
 
 
-        # ---------------------------------
+        # ==========================================
         # CHANGE
-        # ---------------------------------
+        # ==========================================
 
-        change = amount_paid - total
+        change = (
+            amount_paid -
+            total
+        ).quantize(
+            Decimal("0.01")
+        )
 
 
-        # ---------------------------------
+        # ==========================================
         # CREATE TRANSACTION
-        # ---------------------------------
+        # ==========================================
 
         transaction = Transaction.objects.create(
 
@@ -184,14 +285,20 @@ def checkout(request):
 
             change=change,
 
-            reference_number=reference_number
+            reference_number=reference_number,
+
+            customer_type=customer_type,
+
+            discount_percentage=discount_percentage,
+
+            discount_amount=discount_amount
 
         )
 
 
-        # ---------------------------------
+        # ==========================================
         # CREATE ORDER ITEMS
-        # ---------------------------------
+        # ==========================================
 
         for item in items:
 
@@ -204,13 +311,16 @@ def checkout(request):
                 item["quantity"]
             )
 
+
+            # Original product subtotal
+
             subtotal = (
                 product.price *
                 quantity
             )
 
-            # Calculate the total cost
-            # for this product in this order
+
+            # Cost subtotal
 
             cost_subtotal = (
                 product.cost *
@@ -237,15 +347,34 @@ def checkout(request):
             )
 
 
-        # ---------------------------------
+        # ==========================================
         # SUCCESS
-        # ---------------------------------
+        # ==========================================
 
         return JsonResponse(
             {
                 "success": True,
+
                 "transaction_id":
-                    transaction.id
+                    transaction.id,
+
+                "original_total":
+                    str(original_total),
+
+                "discount_percentage":
+                    str(discount_percentage),
+
+                "discount_amount":
+                    str(discount_amount),
+
+                "total":
+                    str(total),
+
+                "amount_paid":
+                    str(amount_paid),
+
+                "change":
+                    str(change)
             }
         )
 
@@ -257,6 +386,18 @@ def checkout(request):
                 "success": False,
                 "error":
                     "One of the products no longer exists."
+            },
+            status=400
+        )
+
+
+    except (ValueError, TypeError):
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error":
+                    "Invalid order information."
             },
             status=400
         )
@@ -278,19 +419,44 @@ def checkout(request):
         )
 
 
+# ==================================================
+# SALES
+# ==================================================
+
 def sales(request):
 
     today = timezone.localdate()
 
+    # ==========================================
+    # COMPLETED TRANSACTIONS ONLY
+    # ==========================================
+
     transactions = (
         Transaction.objects
-        .prefetch_related("items__product")
-        .order_by("-transaction_date")
+        .filter(
+            status="completed"
+        )
+        .prefetch_related(
+            "items__product"
+        )
+        .order_by(
+            "-transaction_date"
+        )
     )
 
-    today_transactions = transactions.filter(
-        transaction_date__date=today
+    # ==========================================
+    # TODAY'S TRANSACTIONS
+    # ==========================================
+
+    today_transactions = (
+        transactions.filter(
+            transaction_date__date=today
+        )
     )
+
+    # ==========================================
+    # TODAY'S TOTAL SALES
+    # ==========================================
 
     today_total = (
         today_transactions.aggregate(
@@ -299,23 +465,39 @@ def sales(request):
         or Decimal("0.00")
     )
 
+    # ==========================================
+    # TODAY'S CASH SALES
+    # ==========================================
+
     cash_total = (
         today_transactions
-        .filter(payment_method="cash")
+        .filter(
+            payment_method="cash"
+        )
         .aggregate(
             total=Sum("total")
         )["total"]
         or Decimal("0.00")
     )
 
+    # ==========================================
+    # TODAY'S QR SALES
+    # ==========================================
+
     qr_total = (
         today_transactions
-        .filter(payment_method="qr")
+        .filter(
+            payment_method="qr"
+        )
         .aggregate(
             total=Sum("total")
         )["total"]
         or Decimal("0.00")
     )
+
+    # ==========================================
+    # CONTEXT
+    # ==========================================
 
     context = {
 
@@ -345,6 +527,9 @@ def sales(request):
         context
     )
 
+# ==================================================
+# DASHBOARD
+# ==================================================
 
 def dashboard(request):
 
@@ -353,34 +538,47 @@ def dashboard(request):
     # ==========================================
 
     overall_total_sales = (
-        Transaction.objects.aggregate(
+        Transaction.objects.filter(
+            status="completed"
+        ).aggregate(
             total=Sum("total")
         )["total"]
         or Decimal("0.00")
     )
 
+
     overall_total_cost = (
-        OrderItem.objects.aggregate(
+        OrderItem.objects.filter(
+            transaction__status="completed"
+        ).aggregate(
             total=Sum("cost_subtotal")
         )["total"]
         or Decimal("0.00")
     )
 
+
     overall_net_profit = (
-        overall_total_sales
-        - overall_total_cost
+        overall_total_sales -
+        overall_total_cost
     )
+
 
     overall_transactions_count = (
-        Transaction.objects.count()
+        Transaction.objects.filter(
+            status="completed"
+        ).count()
     )
 
+
     overall_products_sold = (
-        OrderItem.objects.aggregate(
+        OrderItem.objects.filter(
+            transaction__status="completed"
+        ).aggregate(
             total=Sum("quantity")
         )["total"]
         or 0
     )
+
 
     total_products = (
         Product.objects.filter(
@@ -388,18 +586,22 @@ def dashboard(request):
         ).count()
     )
 
-
-    # ==========================================
+       # ==========================================
     # OVERALL BEST SELLER
     # ==========================================
 
     overall_best_seller = (
         OrderItem.objects
+        .filter(
+            transaction__status="completed"
+        )
         .values(
             "product__name"
         )
         .annotate(
-            total_quantity=Sum("quantity")
+            total_quantity=Sum(
+                "quantity"
+            )
         )
         .order_by(
             "-total_quantity"
@@ -431,13 +633,20 @@ def dashboard(request):
 
 
     # ==========================================
-    # START WITH ALL TRANSACTIONS
+    # START WITH COMPLETED TRANSACTIONS ONLY
     # ==========================================
 
     filtered_transactions = (
         Transaction.objects
-        .prefetch_related("items__product")
-        .order_by("-transaction_date")
+        .filter(
+            status="completed"
+        )
+        .prefetch_related(
+            "items__product"
+        )
+        .order_by(
+            "-transaction_date"
+        )
     )
 
 
@@ -445,11 +654,15 @@ def dashboard(request):
     # FILTER BY DATE
     # ==========================================
 
-    if period == "day" and selected_date:
+    if (
+        period == "day"
+        and selected_date
+    ):
 
         filtered_transactions = (
             filtered_transactions.filter(
-                transaction_date__date=selected_date
+                transaction_date__date=
+                    selected_date
             )
         )
 
@@ -458,20 +671,31 @@ def dashboard(request):
     # FILTER BY MONTH
     # ==========================================
 
-    elif period == "month" and selected_month:
+    elif (
+        period == "month"
+        and selected_month
+    ):
 
         try:
 
-            year, month = selected_month.split("-")
+            year, month = (
+                selected_month.split("-")
+            )
 
             filtered_transactions = (
                 filtered_transactions.filter(
-                    transaction_date__year=int(year),
-                    transaction_date__month=int(month)
+                    transaction_date__year=
+                        int(year),
+
+                    transaction_date__month=
+                        int(month)
                 )
             )
 
-        except (ValueError, TypeError):
+        except (
+            ValueError,
+            TypeError
+        ):
 
             pass
 
@@ -480,25 +704,30 @@ def dashboard(request):
     # FILTER BY YEAR
     # ==========================================
 
-    elif period == "year" and selected_year:
+    elif (
+        period == "year"
+        and selected_year
+    ):
 
         try:
 
             filtered_transactions = (
                 filtered_transactions.filter(
-                    transaction_date__year=int(
-                        selected_year
-                    )
+                    transaction_date__year=
+                        int(selected_year)
                 )
             )
 
-        except (ValueError, TypeError):
+        except (
+            ValueError,
+            TypeError
+        ):
 
             pass
 
 
     # ==========================================
-    # SELECTED PERIOD TOTAL SALES
+    # SELECTED PERIOD SALES
     # ==========================================
 
     filtered_total_sales = (
@@ -513,35 +742,40 @@ def dashboard(request):
     # SELECTED PERIOD ITEMS
     # ==========================================
 
-    filtered_items = OrderItem.objects.filter(
-        transaction__in=filtered_transactions
+    filtered_items = (
+        OrderItem.objects.filter(
+            transaction__in=
+                filtered_transactions
+        )
     )
 
 
     # ==========================================
-    # SELECTED PERIOD TOTAL COST
+    # SELECTED PERIOD COST
     # ==========================================
 
     filtered_total_cost = (
         filtered_items.aggregate(
-            total=Sum("cost_subtotal")
+            total=Sum(
+                "cost_subtotal"
+            )
         )["total"]
         or Decimal("0.00")
     )
 
 
     # ==========================================
-    # SELECTED PERIOD NET PROFIT
+    # SELECTED PERIOD PROFIT
     # ==========================================
 
     filtered_net_profit = (
-        filtered_total_sales
-        - filtered_total_cost
+        filtered_total_sales -
+        filtered_total_cost
     )
 
 
     # ==========================================
-    # SELECTED PERIOD TRANSACTION COUNT
+    # TRANSACTION COUNT
     # ==========================================
 
     filtered_transactions_count = (
@@ -550,7 +784,7 @@ def dashboard(request):
 
 
     # ==========================================
-    # SELECTED PERIOD BEST SELLER
+    # BEST SELLER
     # ==========================================
 
     filtered_best_seller = (
@@ -559,7 +793,8 @@ def dashboard(request):
             "product__name"
         )
         .annotate(
-            total_quantity=Sum("quantity")
+            total_quantity=
+                Sum("quantity")
         )
         .order_by(
             "-total_quantity"
@@ -573,10 +808,6 @@ def dashboard(request):
     # ==========================================
 
     context = {
-
-        # --------------------------------------
-        # Overall
-        # --------------------------------------
 
         "overall_total_sales":
             overall_total_sales,
@@ -599,11 +830,6 @@ def dashboard(request):
         "overall_best_seller":
             overall_best_seller,
 
-
-        # --------------------------------------
-        # Filtered
-        # --------------------------------------
-
         "filtered_total_sales":
             filtered_total_sales,
 
@@ -621,11 +847,6 @@ def dashboard(request):
 
         "filtered_transactions":
             filtered_transactions,
-
-
-        # --------------------------------------
-        # Filter values
-        # --------------------------------------
 
         "period":
             period,
@@ -647,3 +868,79 @@ def dashboard(request):
         "pos/dashboard.html",
         context
     )
+
+# ==================================================
+# VOID ORDER
+# ==================================================
+
+def void_transaction(request, transaction_id):
+
+    if request.method != "POST":
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Invalid request method."
+            },
+            status=405
+        )
+
+    try:
+
+        transaction = Transaction.objects.get(
+            id=transaction_id
+        )
+
+        data = json.loads(request.body)
+
+        reason = data.get(
+            "reason",
+            ""
+        ).strip()
+
+        # Delete the transaction.
+        # OrderItem records are also deleted automatically
+        # because transaction uses on_delete=models.CASCADE.
+        transaction.delete()
+
+        return JsonResponse(
+            {
+                "success": True,
+                "message": "Transaction voided and removed successfully.",
+                "transaction_id": transaction_id
+            }
+        )
+
+    except Transaction.DoesNotExist:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Transaction not found."
+            },
+            status=404
+        )
+
+    except json.JSONDecodeError:
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Invalid request data."
+            },
+            status=400
+        )
+
+    except Exception as e:
+
+        print(
+            "VOID TRANSACTION ERROR:",
+            e
+        )
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Unable to void this transaction."
+            },
+            status=500
+        )

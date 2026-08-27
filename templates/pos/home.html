@@ -5,7 +5,6 @@
 POS | Whisked by Aly
 {% endblock %}
 
-
 {% block content %}
 
 <div class="pos-page">
@@ -14,26 +13,27 @@ POS | Whisked by Aly
          HEADER
     =========================================== -->
 
-   <div class="pos-header">
+    <div class="pos-header">
 
-    <div>
-        <h1>Whisked by Aly</h1>
-        <p>Point of Sale</p>
+        <div>
+            <h1>Whisked by Aly</h1>
+            <p>Point of Sale</p>
+        </div>
+
+        <div class="pos-header-buttons">
+
+            <a href="/pos/sales/" class="btn btn-whisked">
+                Sales
+            </a>
+
+            <a href="/" class="btn btn-pink">
+                ← Home
+            </a>
+
+        </div>
+
     </div>
 
-    <div class="pos-header-buttons">
-
-        <a href="/pos/sales/" class="btn btn-whisked">
-            Sales
-        </a>
-
-        <a href="/" class="btn btn-pink">
-            ← Home
-        </a>
-
-    </div>
-
-</div>
 
     <!-- ==========================================
          POS CONTENT
@@ -50,7 +50,7 @@ POS | Whisked by Aly
             <div class="pos-section">
 
                 <h2>
-                    Choose a Matcha
+                    Choose a Drink
                 </h2>
 
                 <p class="text-muted">
@@ -67,34 +67,47 @@ POS | Whisked by Aly
                         <button
                             type="button"
                             class="product-button"
-                            onclick="addToCart({{ product.id }}, '{{ product.name|escapejs }}', {{ product.price }})" >
+                            onclick="addToCart({{ product.id }}, '{{ product.name|escapejs }}', {{ product.price }})">
 
                             {% if product.name == "Pastillas Matcha" %}
-                                <img src="{% static 'images/products/pastillas-matcha.png' %}"
+
+                                <img
+                                    src="{% static 'images/products/pastillas-matcha.png' %}"
                                     class="product-image"
                                     alt="Pastillas Matcha">
 
                             {% elif product.name == "Chocnut Matcha" %}
-                                <img src="{% static 'images/products/chocnut-matcha.png' %}"
+
+                                <img
+                                    src="{% static 'images/products/chocnut-matcha.png' %}"
                                     class="product-image"
                                     alt="Chocnut Matcha">
 
                             {% elif product.name == "Mais Con Yelo Matcha" %}
-                                <img src="{% static 'images/products/mais-con-yelo-matcha.png' %}"
+
+                                <img
+                                    src="{% static 'images/products/mais-con-yelo-matcha.png' %}"
                                     class="product-image"
                                     alt="Mais Con Yelo Matcha">
 
                             {% elif product.name == "Yema Matcha" %}
-                                <img src="{% static 'images/products/yema-matcha.png' %}"
+
+                                <img
+                                    src="{% static 'images/products/yema-matcha.png' %}"
                                     class="product-image"
                                     alt="Yema Matcha">
 
                             {% elif product.name == "Matcha Oat Latte" %}
-                                <img src="{% static 'images/products/matcha-oat-latte.png' %}"
+
+                                <img
+                                    src="{% static 'images/products/matcha-oat-latte.png' %}"
                                     class="product-image"
                                     alt="Matcha Oat Latte">
+
                             {% elif product.name == "Chocnut Hojicha" %}
-                                <img src="{% static 'images/products/chocnut-hojicha.png' %}"
+
+                                <img
+                                    src="{% static 'images/products/chocnut-hojicha.png' %}"
                                     class="product-image"
                                     alt="Chocnut Hojicha">
 
@@ -121,7 +134,7 @@ POS | Whisked by Aly
                             No products have been added yet.
 
                             Go to the Django Admin and add your
-                            five matcha flavors.
+                            drinks.
 
                         </div>
 
@@ -162,9 +175,10 @@ POS | Whisked by Aly
                     <button
                         type="button"
                         class="clear-button"
-                        onclick="clearCart()"
-                    >
+                        onclick="clearCart()">
+
                         Clear
+
                     </button>
 
                 </div>
@@ -174,8 +188,7 @@ POS | Whisked by Aly
 
                 <div
                     id="cart-items"
-                    class="cart-items"
-                >
+                    class="cart-items">
 
                     <div class="empty-cart">
 
@@ -188,7 +201,7 @@ POS | Whisked by Aly
                         </p>
 
                         <small>
-                            Tap a matcha to start an order.
+                            Tap a drink to start an order.
                         </small>
 
                     </div>
@@ -216,9 +229,10 @@ POS | Whisked by Aly
                 <button
                     type="button"
                     class="btn btn-whisked checkout-button"
-                    onclick="startCheckout()"
-                >
+                    onclick="startCheckout()">
+
                     Continue to Payment →
+
                 </button>
 
             </div>
@@ -231,7 +245,7 @@ POS | Whisked by Aly
 
 
 <!-- ==================================================
-                    JAVASCRIPT
+                     JAVASCRIPT
 ================================================== -->
 
 <script>
@@ -251,13 +265,26 @@ let paymentMethod = "cash";
 
 
 /* ==========================================
+   CUSTOMER TYPE
+========================================== */
+
+let customerType = "regular";
+
+
+/* ==========================================
+   DISCOUNT
+========================================== */
+
+const SC_PWD_DISCOUNT = 0.20;
+
+
+/* ==========================================
    SELECT PAYMENT METHOD
 ========================================== */
 
 function selectPaymentMethod(method) {
 
     paymentMethod = method;
-
 
     const cashButton =
         document.getElementById(
@@ -269,7 +296,6 @@ function selectPaymentMethod(method) {
             "qr-method-button"
         );
 
-
     const cashSection =
         document.getElementById(
             "cash-payment-section"
@@ -279,7 +305,6 @@ function selectPaymentMethod(method) {
         document.getElementById(
             "qr-payment-section"
         );
-
 
     if (method === "cash") {
 
@@ -305,12 +330,172 @@ function selectPaymentMethod(method) {
 
     }
 
-
-    /* Clear payment error */
-
     document.getElementById(
         "payment-error"
     ).textContent = "";
+
+}
+
+
+/* ==========================================
+   SELECT CUSTOMER TYPE
+========================================== */
+
+function selectCustomerType(type) {
+
+    customerType = type;
+
+    const regularButton =
+        document.getElementById(
+            "regular-customer-button"
+        );
+
+    const scPwdButton =
+        document.getElementById(
+            "sc-pwd-customer-button"
+        );
+
+    if (type === "regular") {
+
+        regularButton.classList.add("active");
+
+        scPwdButton.classList.remove("active");
+
+    }
+
+    else {
+
+        scPwdButton.classList.add("active");
+
+        regularButton.classList.remove("active");
+
+    }
+
+    updateCheckoutTotal();
+
+}
+
+
+/* ==========================================
+   CALCULATE ORDER TOTAL
+========================================== */
+
+function getOrderTotal() {
+
+    const items =
+        Object.values(cart);
+
+    return items.reduce(
+        (sum, item) =>
+            sum +
+            item.price *
+            item.quantity,
+        0
+    );
+
+}
+
+
+/* ==========================================
+   CALCULATE DISCOUNT
+========================================== */
+
+function getDiscountAmount() {
+
+    const subtotal =
+        getOrderTotal();
+
+    if (customerType === "sc_pwd") {
+
+        return subtotal * SC_PWD_DISCOUNT;
+
+    }
+
+    return 0;
+
+}
+
+
+/* ==========================================
+   CALCULATE FINAL TOTAL
+========================================== */
+
+function getFinalTotal() {
+
+    const subtotal =
+        getOrderTotal();
+
+    const discount =
+        getDiscountAmount();
+
+    return subtotal - discount;
+
+}
+
+
+/* ==========================================
+   UPDATE CHECKOUT TOTAL
+========================================== */
+
+function updateCheckoutTotal() {
+
+    const subtotal =
+        getOrderTotal();
+
+    const discount =
+        getDiscountAmount();
+
+    const total =
+        getFinalTotal();
+
+    const subtotalElement =
+        document.getElementById(
+            "checkout-subtotal"
+        );
+
+    const discountElement =
+        document.getElementById(
+            "checkout-discount"
+        );
+
+    const totalElement =
+        document.getElementById(
+            "checkout-total"
+        );
+
+    if (subtotalElement) {
+
+        subtotalElement.textContent =
+            `₱${subtotal.toFixed(2)}`;
+
+    }
+
+    if (discountElement) {
+
+        if (discount > 0) {
+
+            discountElement.textContent =
+                `-₱${discount.toFixed(2)}`;
+
+        }
+
+        else {
+
+            discountElement.textContent =
+                "₱0.00";
+
+        }
+
+    }
+
+    if (totalElement) {
+
+        totalElement.textContent =
+            `₱${total.toFixed(2)}`;
+
+    }
+
+    calculateChange();
 
 }
 
@@ -343,7 +528,6 @@ function addToCart(id, name, price) {
 
     }
 
-
     renderCart();
 
 }
@@ -361,16 +545,13 @@ function changeQuantity(id, amount) {
 
     }
 
-
     cart[id].quantity += amount;
-
 
     if (cart[id].quantity <= 0) {
 
         delete cart[id];
 
     }
-
 
     renderCart();
 
@@ -414,12 +595,10 @@ function renderCart() {
             "cart-items"
         );
 
-
     const totalElement =
         document.getElementById(
             "cart-total"
         );
-
 
     const items =
         Object.values(cart);
@@ -442,17 +621,15 @@ function renderCart() {
                 </p>
 
                 <small>
-                    Tap a matcha to start an order.
+                    Tap a drink to start an order.
                 </small>
 
             </div>
 
         `;
 
-
         totalElement.textContent =
             "₱0.00";
-
 
         return;
 
@@ -460,7 +637,6 @@ function renderCart() {
 
 
     let total = 0;
-
 
     cartContainer.innerHTML = "";
 
@@ -473,9 +649,7 @@ function renderCart() {
             item.price *
             item.quantity;
 
-
         total += subtotal;
-
 
         cartContainer.innerHTML += `
 
@@ -504,9 +678,10 @@ function renderCart() {
                             onclick="changeQuantity(
                                 ${item.id},
                                 -1
-                            )"
-                        >
+                            )">
+
                             −
+
                         </button>
 
 
@@ -520,9 +695,10 @@ function renderCart() {
                             onclick="changeQuantity(
                                 ${item.id},
                                 1
-                            )"
-                        >
+                            )">
+
                             +
+
                         </button>
 
                     </div>
@@ -538,9 +714,10 @@ function renderCart() {
                         class="remove-item"
                         onclick="removeItem(
                             ${item.id}
-                        )"
-                    >
+                        )">
+
                         ×
+
                     </button>
 
                 </div>
@@ -568,8 +745,6 @@ function startCheckout() {
         Object.values(cart);
 
 
-    /* Don't allow empty orders */
-
     if (items.length === 0) {
 
         alert(
@@ -581,60 +756,34 @@ function startCheckout() {
     }
 
 
-    /* Reset payment method */
-
     paymentMethod = "cash";
+
+    customerType = "regular";
 
 
     selectPaymentMethod(
         "cash"
     );
 
+    selectCustomerType(
+        "regular"
+    );
 
-    /* Clear previous reference */
 
     document.getElementById(
         "reference-number"
     ).value = "";
 
 
-    /* Clear previous error */
-
     document.getElementById(
         "payment-error"
     ).textContent = "";
 
 
-    /* Calculate total */
-
-    let total = 0;
-
-
-    items.forEach(item => {
-
-        total +=
-            item.price *
-            item.quantity;
-
-    });
-
-
-    /* Show total */
-
-    document.getElementById(
-        "checkout-total"
-    ).textContent =
-        `₱${total.toFixed(2)}`;
-
-
-    /* Reset cash */
-
     document.getElementById(
         "amount-paid"
     ).value = "";
 
-
-    /* Reset change */
 
     document.getElementById(
         "change-amount"
@@ -642,7 +791,8 @@ function startCheckout() {
         "₱0.00";
 
 
-    /* Open modal */
+    updateCheckoutTotal();
+
 
     document.getElementById(
         "checkout-modal"
@@ -672,19 +822,8 @@ function closeCheckout() {
 
 function calculateChange() {
 
-    const totalText =
-        document
-            .getElementById(
-                "checkout-total"
-            )
-            .textContent
-            .replace("₱", "")
-            .replace(",", "");
-
-
     const total =
-        Number(totalText);
-
+        getFinalTotal();
 
     const amountPaid =
         Number(
@@ -740,7 +879,6 @@ function setCash(amount) {
         "amount-paid"
     ).value = amount;
 
-
     calculateChange();
 
 }
@@ -752,24 +890,13 @@ function setCash(amount) {
 
 function setExactCash() {
 
-    const totalText =
-        document
-            .getElementById(
-                "checkout-total"
-            )
-            .textContent
-            .replace("₱", "")
-            .replace(",", "");
-
-
     const total =
-        Number(totalText);
-
+        getFinalTotal();
 
     document.getElementById(
         "amount-paid"
-    ).value = total;
-
+    ).value =
+        total.toFixed(2);
 
     calculateChange();
 
@@ -780,13 +907,11 @@ function setExactCash() {
    COMPLETE SALE
 ========================================== */
 
-async function completeSale() {
+function completeSale() {
 
     const items =
         Object.values(cart);
 
-
-    /* Check cart */
 
     if (items.length === 0) {
 
@@ -799,16 +924,8 @@ async function completeSale() {
     }
 
 
-    /* Calculate total */
-
     const total =
-        items.reduce(
-            (sum, item) =>
-                sum +
-                item.price *
-                item.quantity,
-            0
-        );
+        getFinalTotal();
 
 
     let amountPaid = 0;
@@ -880,29 +997,148 @@ async function completeSale() {
         }
 
 
-        /*
-            QR is considered fully paid.
-        */
-
         amountPaid = total;
 
     }
 
 
-    /* ======================================
-       CHANGE
-    ====================================== */
-
     const change =
         amountPaid - total;
 
 
-    /* ======================================
-       PREPARE ITEMS
-    ====================================== */
+    /*
+       DON'T SAVE YET.
+
+       Show confirmation first.
+    */
+
+    showConfirmation(
+        items,
+        total,
+        amountPaid,
+        change,
+        referenceNumber
+    );
+
+}
+
+
+/* ==========================================
+   SHOW CONFIRMATION
+========================================== */
+
+function showConfirmation(
+    items,
+    total,
+    amountPaid,
+    change,
+    referenceNumber
+) {
+
+    const subtotal =
+        getOrderTotal();
+
+    const discount =
+        getDiscountAmount();
+
+
+    document.getElementById(
+        "confirm-customer-type"
+    ).textContent =
+        customerType === "sc_pwd"
+            ? "SC / PWD"
+            : "Regular";
+
+
+    document.getElementById(
+        "confirm-subtotal"
+    ).textContent =
+        `₱${subtotal.toFixed(2)}`;
+
+
+    document.getElementById(
+        "confirm-discount"
+    ).textContent =
+        discount > 0
+            ? `-₱${discount.toFixed(2)}`
+            : "₱0.00";
+
+
+    document.getElementById(
+        "confirm-total"
+    ).textContent =
+        `₱${total.toFixed(2)}`;
+
+
+    document.getElementById(
+        "confirm-payment"
+    ).textContent =
+        paymentMethod === "cash"
+            ? "Cash"
+            : "QR";
+
+
+    document.getElementById(
+        "confirm-modal"
+    ).classList.add("show");
+
+
+    window.pendingSale = {
+
+        items:
+            items,
+
+        total:
+            total,
+
+        amountPaid:
+            amountPaid,
+
+        change:
+            change,
+
+        referenceNumber:
+            referenceNumber
+
+    };
+
+}
+
+
+/* ==========================================
+   CLOSE CONFIRMATION
+========================================== */
+
+function closeConfirmation() {
+
+    document
+        .getElementById(
+            "confirm-modal"
+        )
+        .classList.remove("show");
+
+}
+
+
+/* ==========================================
+   CONFIRM SALE
+========================================== */
+
+async function confirmSale() {
+
+    if (!window.pendingSale) {
+
+        return;
+
+    }
+
+
+    const sale =
+        window.pendingSale;
+
 
     const transactionItems =
-        items.map(item => ({
+        sale.items.map(item => ({
 
             id:
                 item.id,
@@ -920,9 +1156,11 @@ async function completeSale() {
         }));
 
 
-    /* ======================================
-       SEND TO DJANGO
-    ====================================== */
+    const paymentError =
+        document.getElementById(
+            "payment-error"
+        );
+
 
     try {
 
@@ -952,19 +1190,22 @@ async function completeSale() {
                                 transactionItems,
 
                             total:
-                                total,
+                                sale.total,
 
                             amount_paid:
-                                amountPaid,
+                                sale.amountPaid,
 
                             change:
-                                change,
+                                sale.change,
 
                             payment_method:
                                 paymentMethod,
 
                             reference_number:
-                                referenceNumber
+                                sale.referenceNumber,
+
+                            customer_type:
+                                customerType
 
                         })
 
@@ -976,65 +1217,61 @@ async function completeSale() {
             await response.json();
 
 
-        /* ==================================
-           SUCCESS
-        ================================== */
-
         if (result.success) {
+
+            closeConfirmation();
+
 
             showReceipt(
 
                 result.transaction_id,
 
-                items,
+                sale.items,
 
-                total,
+                sale.total,
 
-                amountPaid,
+                sale.amountPaid,
 
-                change,
+                sale.change,
 
                 paymentMethod,
 
-                referenceNumber
+                sale.referenceNumber,
+
+                result.discount_percentage,
+
+                result.discount_amount,
+
+                customerType
 
             );
 
-
-            /* Clear cart */
 
             cart = {};
 
             renderCart();
 
 
-            /* Close checkout */
-
             closeCheckout();
+
+
+            window.pendingSale = null;
 
         }
 
 
-        /* ==================================
-           ERROR FROM DJANGO
-        ================================== */
-
         else {
 
-            document.getElementById(
-                "payment-error"
-            ).textContent =
+            paymentError.textContent =
                 result.error ||
                 "Something went wrong while saving the sale.";
+
+            closeConfirmation();
 
         }
 
     }
 
-
-    /* ======================================
-       NETWORK ERROR
-    ====================================== */
 
     catch (error) {
 
@@ -1044,10 +1281,10 @@ async function completeSale() {
         );
 
 
-        document.getElementById(
-            "payment-error"
-        ).textContent =
+        paymentError.textContent =
             "Something went wrong while saving the sale.";
+
+        closeConfirmation();
 
     }
 
@@ -1120,7 +1357,10 @@ function showReceipt(
     amountPaid,
     change,
     paymentMethod,
-    referenceNumber
+    referenceNumber,
+    discountPercentage,
+    discountAmount,
+    customerType
 ) {
 
 
@@ -1210,13 +1450,56 @@ function showReceipt(
 
 
     /* ======================================
+       DISCOUNT DETAILS
+    ====================================== */
+
+    let discountDetails = "";
+
+
+    if (
+        customerType === "sc_pwd"
+        &&
+        Number(discountAmount) > 0
+    ) {
+
+        discountDetails = `
+
+            <div>
+
+                <span>
+                    Customer
+                </span>
+
+                <span>
+                    SC / PWD
+                </span>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Discount (${Number(discountPercentage).toFixed(0)}%)
+                </span>
+
+                <span>
+                    -₱${Number(discountAmount).toFixed(2)}
+                </span>
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* ======================================
        PAYMENT DETAILS
     ====================================== */
 
     let paymentDetails = "";
 
-
-    /* CASH RECEIPT */
 
     if (paymentMethod === "cash") {
 
@@ -1264,8 +1547,6 @@ function showReceipt(
 
     }
 
-
-    /* QR RECEIPT */
 
     else {
 
@@ -1351,6 +1632,25 @@ function showReceipt(
         <div class="receipt-divider"></div>
 
 
+        <div class="receipt-discount">
+
+            <div>
+
+                <span>
+                    Subtotal
+                </span>
+
+                <span>
+                    ₱${getOrderTotal().toFixed(2)}
+                </span>
+
+            </div>
+
+            ${discountDetails}
+
+        </div>
+
+
         <div class="receipt-total">
 
             <span>
@@ -1419,7 +1719,7 @@ function closeReceipt() {
 
 
 <!-- ==================================================
-                CHECKOUT MODAL
+                    CHECKOUT MODAL
 ================================================== -->
 
 <div
@@ -1450,26 +1750,100 @@ function closeReceipt() {
             <button
                 type="button"
                 class="checkout-close"
-                onclick="closeCheckout()"
-            >
+                onclick="closeCheckout()">
+
                 ×
+
             </button>
 
         </div>
 
 
-        <!-- TOTAL -->
+        <!-- ==========================================
+             CUSTOMER TYPE
+        =========================================== -->
+
+        <div class="customer-type-container">
+
+            <label>
+                Customer Type
+            </label>
+
+
+            <div class="customer-type-buttons">
+
+                <button
+                    type="button"
+                    id="regular-customer-button"
+                    class="customer-type-button active"
+                    onclick="selectCustomerType('regular')">
+
+                    👤 Regular
+
+                </button>
+
+
+                <button
+                    type="button"
+                    id="sc-pwd-customer-button"
+                    class="customer-type-button"
+                    onclick="selectCustomerType('sc_pwd')">
+
+                    💗 SC / PWD
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
+             TOTAL
+        =========================================== -->
 
         <div class="checkout-total-box">
 
-            <span>
-                Total Amount
-            </span>
+            <div class="checkout-summary-row">
+
+                <span>
+                    Subtotal
+                </span>
+
+                <strong id="checkout-subtotal">
+                    ₱0.00
+                </strong>
+
+            </div>
 
 
-            <strong id="checkout-total">
-                ₱0.00
-            </strong>
+            <div class="checkout-summary-row discount-row">
+
+                <span>
+                    SC / PWD Discount
+                </span>
+
+                <strong id="checkout-discount">
+                    ₱0.00
+                </strong>
+
+            </div>
+
+
+            <div class="checkout-summary-divider"></div>
+
+
+            <div class="checkout-summary-row checkout-final-total">
+
+                <span>
+                    Total Amount
+                </span>
+
+                <strong id="checkout-total">
+                    ₱0.00
+                </strong>
+
+            </div>
 
         </div>
 
@@ -1491,9 +1865,10 @@ function closeReceipt() {
                     type="button"
                     id="cash-method-button"
                     class="payment-method-button active"
-                    onclick="selectPaymentMethod('cash')"
-                >
+                    onclick="selectPaymentMethod('cash')">
+
                     💵 Cash
+
                 </button>
 
 
@@ -1501,9 +1876,10 @@ function closeReceipt() {
                     type="button"
                     id="qr-method-button"
                     class="payment-method-button"
-                    onclick="selectPaymentMethod('qr')"
-                >
+                    onclick="selectPaymentMethod('qr')">
+
                     📱 QR
+
                 </button>
 
             </div>
@@ -1517,8 +1893,7 @@ function closeReceipt() {
 
         <div
             id="cash-payment-section"
-            class="payment-section"
-        >
+            class="payment-section">
 
             <div class="cash-input-container">
 
@@ -1540,8 +1915,7 @@ function closeReceipt() {
                         placeholder="0.00"
                         min="0"
                         step="0.01"
-                        oninput="calculateChange()"
-                    >
+                        oninput="calculateChange()">
 
                 </div>
 
@@ -1554,33 +1928,37 @@ function closeReceipt() {
 
                 <button
                     type="button"
-                    onclick="setCash(250)"
-                >
+                    onclick="setCash(250)">
+
                     ₱250
+
                 </button>
 
 
                 <button
                     type="button"
-                    onclick="setCash(500)"
-                >
+                    onclick="setCash(500)">
+
                     ₱500
+
                 </button>
 
 
                 <button
                     type="button"
-                    onclick="setCash(1000)"
-                >
+                    onclick="setCash(1000)">
+
                     ₱1,000
+
                 </button>
 
 
                 <button
                     type="button"
-                    onclick="setExactCash()"
-                >
+                    onclick="setExactCash()">
+
                     Exact
+
                 </button>
 
             </div>
@@ -1590,8 +1968,7 @@ function closeReceipt() {
 
             <div
                 id="change-box"
-                class="change-box"
-            >
+                class="change-box">
 
                 <span>
                     Change
@@ -1614,8 +1991,7 @@ function closeReceipt() {
         <div
             id="qr-payment-section"
             class="payment-section"
-            style="display:none;"
-        >
+            style="display:none;">
 
             <label for="reference-number">
                 QR Reference Number
@@ -1626,8 +2002,7 @@ function closeReceipt() {
                 type="text"
                 id="reference-number"
                 class="reference-input"
-                placeholder="Enter payment reference number"
-            >
+                placeholder="Enter payment reference number">
 
 
             <small class="reference-help">
@@ -1641,8 +2016,8 @@ function closeReceipt() {
 
         <div
             id="payment-error"
-            class="payment-error"
-        ></div>
+            class="payment-error">
+        </div>
 
 
         <!-- COMPLETE SALE -->
@@ -1650,9 +2025,10 @@ function closeReceipt() {
         <button
             type="button"
             class="complete-sale-button"
-            onclick="completeSale()"
-        >
-            ✓ Complete Sale
+            onclick="completeSale()">
+
+            ✓ Review Sale
+
         </button>
 
 
@@ -1661,11 +2037,154 @@ function closeReceipt() {
         <button
             type="button"
             class="cancel-sale-button"
-            onclick="closeCheckout()"
-        >
+            onclick="closeCheckout()">
+
             Cancel
+
         </button>
 
+
+    </div>
+
+</div>
+
+
+<!-- ==================================================
+                 CONFIRMATION MODAL
+================================================== -->
+
+<div
+    id="confirm-modal"
+    class="checkout-modal">
+
+    <div class="checkout-box confirmation-box">
+
+        <div class="checkout-header">
+
+            <div>
+
+                <h2>
+                    💗 Confirm Checkout
+                </h2>
+
+                <p>
+                    Please review the order before proceeding.
+                </p>
+
+            </div>
+
+
+            <button
+                type="button"
+                class="checkout-close"
+                onclick="closeConfirmation()">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div class="confirmation-summary">
+
+            <div class="confirmation-row">
+
+                <span>
+                    Customer
+                </span>
+
+                <strong id="confirm-customer-type">
+                    Regular
+                </strong>
+
+            </div>
+
+
+            <div class="confirmation-row">
+
+                <span>
+                    Subtotal
+                </span>
+
+                <strong id="confirm-subtotal">
+                    ₱0.00
+                </strong>
+
+            </div>
+
+
+            <div class="confirmation-row discount-row">
+
+                <span>
+                    SC / PWD Discount
+                </span>
+
+                <strong id="confirm-discount">
+                    ₱0.00
+                </strong>
+
+            </div>
+
+
+            <div class="confirmation-divider"></div>
+
+
+            <div class="confirmation-row confirmation-total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong id="confirm-total">
+                    ₱0.00
+                </strong>
+
+            </div>
+
+
+            <div class="confirmation-row">
+
+                <span>
+                    Payment
+                </span>
+
+                <strong id="confirm-payment">
+                    Cash
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <p class="confirmation-question">
+            Are you sure you want to proceed to the receipt?
+        </p>
+
+
+        <div class="confirmation-buttons">
+
+            <button
+                type="button"
+                class="cancel-sale-button"
+                onclick="closeConfirmation()">
+
+                ← Go Back
+
+            </button>
+
+
+            <button
+                type="button"
+                class="complete-sale-button"
+                onclick="confirmSale()">
+
+                ✓ Yes, Proceed
+
+            </button>
+
+        </div>
 
     </div>
 
@@ -1678,15 +2197,13 @@ function closeReceipt() {
 
 <div
     id="receipt-modal"
-    class="receipt-modal"
->
+    class="receipt-modal">
 
     <div class="receipt-box">
 
         <div
             id="receipt-content"
-            class="receipt-content"
-        >
+            class="receipt-content">
         </div>
 
 
@@ -1695,18 +2212,20 @@ function closeReceipt() {
             <button
                 type="button"
                 class="btn btn-whisked"
-                onclick="window.print()"
-            >
+                onclick="window.print()">
+
                 🖨 Print Receipt
+
             </button>
 
 
             <button
                 type="button"
                 class="btn btn-pink"
-                onclick="closeReceipt()"
-            >
+                onclick="closeReceipt()">
+
                 + New Sale
+
             </button>
 
         </div>
@@ -1715,5 +2234,421 @@ function closeReceipt() {
 
 </div>
 
+
+<!-- ==================================================
+                    EXTRA STYLING
+================================================== -->
+
+<style>
+
+/* ==========================================
+   CUSTOMER TYPE
+========================================== */
+
+.customer-type-container {
+    margin: 4px 34px 20px;
+}
+
+.customer-type-container label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.customer-type-buttons {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+}
+
+.customer-type-button {
+    flex: 1;
+    min-width: 0;
+    min-height: 58px;
+
+    border: 2px solid #ead8df;
+    background: #fff;
+    border-radius: 16px;
+
+    padding: 12px 16px;
+
+    font-size: 1.05rem;
+    font-weight: 700;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.customer-type-button:hover {
+    transform: translateY(-2px);
+    border-color: #eba3bf;
+}
+
+.customer-type-button.active {
+    background: #f8dce7;
+    border-color: #eba3bf;
+    color: #7d4057;
+}
+
+
+/* ==========================================
+   CHECKOUT MODAL
+   WIDER + SCROLLABLE
+========================================== */
+
+.checkout-modal {
+    padding: 20px;
+}
+
+
+/* MAIN CHECKOUT BOX */
+
+.checkout-box {
+    width: min(920px, 94vw) !important;
+
+    max-width: 920px !important;
+    max-height: 90vh !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    margin: auto;
+}
+
+
+/* SCROLLBAR */
+
+.checkout-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.checkout-box::-webkit-scrollbar-track {
+    background: #f8f3ed;
+}
+
+.checkout-box::-webkit-scrollbar-thumb {
+    background: #d8cec1;
+    border-radius: 10px;
+}
+
+.checkout-box::-webkit-scrollbar-thumb:hover {
+    background: #bdb1a3;
+}
+
+
+/* ==========================================
+   CHECKOUT HEADER
+========================================== */
+
+.checkout-header {
+    flex-shrink: 0;
+}
+
+
+/* ==========================================
+   CHECKOUT SUMMARY
+========================================== */
+
+.checkout-total-box {
+    width: auto !important;
+
+    margin: 0 34px 28px !important;
+
+    padding: 20px 24px !important;
+
+    box-sizing: border-box;
+
+    background: #faf3e7;
+
+    border-radius: 20px;
+}
+
+.checkout-summary-row {
+    width: 100% !important;
+
+    display: flex !important;
+
+    justify-content: space-between !important;
+
+    align-items: center !important;
+
+    gap: 20px;
+
+    margin-bottom: 11px;
+
+    box-sizing: border-box;
+}
+
+.checkout-summary-row span {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #666;
+
+    line-height: 1.3;
+}
+
+.checkout-summary-row strong {
+    font-size: 1.2rem !important;
+    font-weight: 800;
+
+    color: #78a916;
+
+    white-space: nowrap;
+}
+
+.checkout-summary-divider {
+    width: 100%;
+
+    border-top: 1px dashed #d9cbb9;
+
+    margin: 14px 0;
+}
+
+.checkout-final-total {
+    margin-bottom: 0 !important;
+}
+
+.checkout-summary-row.checkout-final-total span {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.checkout-summary-row.checkout-final-total strong {
+    font-size: 1.45rem !important;
+    font-weight: 900;
+    color: #78a916;
+}
+
+
+/* ==========================================
+   PAYMENT METHOD
+========================================== */
+
+.payment-method-container {
+    margin-left: 34px;
+    margin-right: 34px;
+}
+
+.payment-method-buttons {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+}
+
+.payment-method-button {
+    flex: 1;
+    min-height: 58px;
+
+    border-radius: 16px;
+}
+
+
+/* ==========================================
+   CASH PAYMENT
+========================================== */
+
+.payment-section {
+    margin-left: 34px;
+    margin-right: 34px;
+}
+
+.cash-input {
+    width: 100%;
+}
+
+.cash-input input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   QUICK CASH
+========================================== */
+
+.quick-cash {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 10px;
+
+    margin-top: 12px;
+}
+
+.quick-cash button {
+    min-height: 52px;
+}
+
+
+/* ==========================================
+   CHANGE
+========================================== */
+
+.change-box {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-top: 14px;
+
+    padding: 18px 20px;
+
+    background: #f4f8e8;
+
+    border-radius: 18px;
+}
+
+.change-box strong {
+    white-space: nowrap;
+}
+
+
+/* ==========================================
+   QR PAYMENT
+========================================== */
+
+.reference-input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   BUTTONS
+========================================== */
+
+.complete-sale-button {
+    margin-left: 34px;
+    margin-right: 34px;
+
+    width: calc(100% - 68px);
+}
+
+.cancel-sale-button {
+    margin-left: 34px;
+    margin-right: 34px;
+
+    width: calc(100% - 68px);
+}
+
+
+/* ==========================================
+   CONFIRMATION POPUP
+========================================== */
+
+.confirmation-box {
+    width: min(560px, 94vw) !important;
+
+    max-width: 560px !important;
+}
+
+.confirmation-summary {
+    margin: 18px 34px;
+}
+
+.confirmation-row {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 10px;
+}
+
+.confirmation-row strong {
+    white-space: nowrap;
+}
+
+.confirmation-buttons {
+    display: flex;
+
+    gap: 10px;
+
+    padding: 0 34px 28px;
+}
+
+.confirmation-buttons button {
+    flex: 1;
+
+    margin: 0;
+}
+
+
+/* ==========================================
+   RECEIPT DISCOUNT
+========================================== */
+
+.receipt-discount {
+    margin-bottom: 12px;
+}
+
+.receipt-discount > div {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 5px;
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 700px) {
+
+    .checkout-modal {
+        padding: 10px;
+    }
+
+    .checkout-box {
+        width: 96vw !important;
+        max-height: 94vh !important;
+    }
+
+    .customer-type-container,
+    .checkout-total-box,
+    .payment-method-container,
+    .payment-section {
+        margin-left: 22px !important;
+        margin-right: 22px !important;
+    }
+
+    .complete-sale-button,
+    .cancel-sale-button {
+        margin-left: 22px !important;
+        margin-right: 22px !important;
+
+        width: calc(100% - 44px);
+    }
+
+    .quick-cash {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .confirmation-summary {
+        margin-left: 22px;
+        margin-right: 22px;
+    }
+
+    .confirmation-buttons {
+        padding-left: 22px;
+        padding-right: 22px;
+    }
+}
+
+</style>
 
 {% endblock %}
